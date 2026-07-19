@@ -97,8 +97,8 @@ export default function StudentLifePage() {
       <section className="relative h-[85vh] flex flex-col justify-center px-6 md:px-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1523580494112-071d1621186c?auto=format&fit=crop&q=80&w=1920"
-            alt="Students at Agaro"
+            src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1920"
+            alt="School Campus"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/40"></div>
@@ -116,7 +116,7 @@ export default function StudentLifePage() {
           </p>
           <Link
             to="/about#archives"
-            className="inline-flex items-center gap-2 bg-[#033327] text-white px-8 py-3.5 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#0d4a3b] transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 bg-white text-[#033327]  px-8 py-3.5 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#74bba8] transition-colors shadow-lg"
           >
             EXPLORE THE ARCHIVE <ArrowRight size={14} />
           </Link>
@@ -226,7 +226,7 @@ export default function StudentLifePage() {
             </div>
             <div className="relative rounded-2xl overflow-hidden h-[450px] group shadow-lg">
               <img
-                src="https://images.unsplash.com/photo-1552674605-15c2145efa38?auto=format&fit=crop&q=80&w=600"
+                src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&q=80"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
                 alt="Athletics"
               />
@@ -408,7 +408,7 @@ export default function StudentLifePage() {
               </div>
               <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <img
-                  src="https://images.unsplash.com/photo-1544835619-798eb4bb8be9?auto=format&fit=crop&q=80&w=400"
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80"
                   className="w-full h-64 object-cover"
                   alt="Gallery 2"
                 />
@@ -440,7 +440,7 @@ export default function StudentLifePage() {
               </div>
               <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <img
-                  src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=400"
+                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80"
                   className="w-full h-48 object-cover"
                   alt="Gallery 6"
                 />

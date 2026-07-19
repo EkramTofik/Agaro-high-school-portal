@@ -224,7 +224,7 @@ const educators = [
   {
     name: "Mrs. Genet Ayenu",
     role: "Guidance Counsellor",
-    img: "https://images.unsplash.com/photo-1580894742597-87bc8789db3d?auto=format&fit=crop&q=80&w=400",
+    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400",
     award: "Student Welfare Exec",
   },
 ];

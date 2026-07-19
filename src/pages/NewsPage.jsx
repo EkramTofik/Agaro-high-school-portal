@@ -45,7 +45,7 @@ const ALL_NEWS = [
     date: "Oct 05, 2024",
     urgent: false,
     desc: "The Class of 1998 has generously donated to establish a new scholarship fund for promising students in the arts and humanities.",
-    img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&q=80&w=800",
   },
   {
     id: 6,

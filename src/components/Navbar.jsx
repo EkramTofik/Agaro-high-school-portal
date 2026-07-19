@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search } from "lucide-react";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -29,7 +28,11 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setIsOpen(false);
+    const timer = setTimeout(() => {
+      setIsOpen(false);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [location]);
 
   return (

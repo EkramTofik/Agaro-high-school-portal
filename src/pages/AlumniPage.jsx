@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Award, MapPin, Briefcase } from "lucide-react";
 
 const ALUMNI_DATA = [
@@ -67,6 +68,7 @@ const FIELDS = [
 ];
 
 export default function AlumniPage() {
+  const navigate = useNavigate();
   const [activeField, setActiveField] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("year-desc");
@@ -417,7 +419,10 @@ export default function AlumniPage() {
             We are always looking to reconnect with our alumni. Update your
             contact information to stay informed.
           </p>
-          <button className="px-8 py-4 bg-[#FFDEA4] text-[#033327] rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-white transition-colors shadow-lg shadow-black/20">
+          <button
+            onClick={() => navigate("/contact")}
+            className="px-8 py-4 bg-[#FFDEA4] text-[#033327] rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-white transition-colors shadow-lg shadow-black/20 cursor-pointer"
+          >
             Join the Alumni Network
           </button>
         </div>

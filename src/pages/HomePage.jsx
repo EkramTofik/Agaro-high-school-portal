@@ -60,13 +60,6 @@ export default function HomePage() {
                 >
                   Discover Agaro
                 </Link>
-
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl border-2 border-[#033327] text-[#033327] font-semibold bg-white/70 hover:bg-[#033327] hover:text-white transition-all duration-300 hover:-translate-y-1"
-                >
-                  Enroll Now
-                </Link>
               </div>
             </div>
           </div>

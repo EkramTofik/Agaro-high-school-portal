@@ -350,7 +350,6 @@ function MathCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Responsive header with wrap and visible arrows */}
       <div className="flex flex-wrap items-end justify-between mb-8 gap-2">
         <div className="flex items-end gap-3 flex-1 min-w-0">
           <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold text-[#033327] leading-none truncate">
@@ -399,7 +398,6 @@ function MathCarousel() {
               key={idx}
               className="w-full shrink-0 grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
-              {/* Large Card */}
               {pair.large && (
                 <div className="lg:col-span-2 bg-[#F6F4EB] rounded-[32px] p-8 flex flex-col md:flex-row gap-8 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_2px_10px_rgba(0,0,0,0.02)]">
                   <img
@@ -456,8 +454,6 @@ function MathCarousel() {
                   </div>
                 </div>
               )}
-
-              {/* Small Card */}
               {pair.small && (
                 <div className="bg-white rounded-[32px] p-8 shadow-[inset_0_2px_4px_rgba(255,255,255,1),0_2px_10px_rgba(0,0,0,0.03)] border border-[#e8e5dc] flex flex-col group">
                   <img
@@ -471,12 +467,10 @@ function MathCarousel() {
                   <p className="text-[10px] text-gray-500 mb-8">
                     {pair.small.role}
                   </p>
-
                   <div className="space-y-2.5 mb-12">
                     <div className="h-1.5 w-full bg-[#F6F4EB] rounded-full"></div>
                     <div className="h-1.5 w-2/3 bg-[#F6F4EB] rounded-full"></div>
                   </div>
-
                   <div className="mt-auto flex justify-between items-end">
                     <span className="text-[10px] font-bold text-[#033327] uppercase tracking-[0.15em]">
                       {pair.small.tenure}
@@ -495,27 +489,34 @@ function MathCarousel() {
   );
 }
 
-// ─── SCIENCE CAROUSEL ────────────────────────────────────────────────────────
+// ─── SCIENCE CAROUSEL (FIXED) ─────────────────────────────────────────────
 
 function ScienceCarousel() {
   const [itemsVisible, setItemsVisible] = useState(4);
+
   useEffect(() => {
-    const check = () =>
-      setItemsVisible(
-        window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 2 : 1,
-      );
+    const check = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setItemsVisible(4);
+      else if (width >= 640) setItemsVisible(2);
+      else setItemsVisible(1);
+    };
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Build slides — guaranteed to have at least one slide
   const slides = [];
   for (let i = 0; i < scienceStaff.length; i += itemsVisible) {
     slides.push(scienceStaff.slice(i, i + itemsVisible));
   }
 
+  // If for any reason slides is empty, fallback to a single slide with all staff
+  const safeSlides = slides.length > 0 ? slides : [scienceStaff];
+
   const { index, maxIndex, progress, paused, setPaused, next, prev } =
-    useCarousel(slides.length, 1, 4000);
+    useCarousel(safeSlides.length, 1, 4000);
 
   return (
     <section
@@ -523,9 +524,8 @@ function ScienceCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Responsive header with wrap and visible arrows */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-6 flex-1 min-w-0 pr-6">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-6 flex-1 min-w-0 pr-2">
           <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold text-[#033327] leading-none whitespace-nowrap">
             Natural Sciences
           </h2>
@@ -565,7 +565,7 @@ function ScienceCarousel() {
           className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
-          {slides.map((slide, idx) => (
+          {safeSlides.map((slide, idx) => (
             <div
               key={idx}
               className="w-full shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -635,7 +635,6 @@ function SocialCarousel({ showSocial, showLanguage }) {
 
   return (
     <section className="max-w-6xl mx-auto px-6 mb-24 grid grid-cols-1 lg:grid-cols-2 gap-16">
-      {/* Social Sciences */}
       {showSocial && (
         <div
           className={!showSocial ? "hidden lg:block lg:invisible" : ""}
@@ -726,7 +725,6 @@ function SocialCarousel({ showSocial, showLanguage }) {
         </div>
       )}
 
-      {/* Languages */}
       {showLanguage && (
         <div
           className={!showSocial ? "lg:col-start-2" : ""}
@@ -906,7 +904,7 @@ export default function FacultyPage() {
         </div>
       </div>
 
-      {/* ── SEARCH RESULTS GRID ──────────────────────────────────────────── */}
+      {/* ── SEARCH RESULTS ────────────────────────────────────────────────── */}
       {isSearchActive && (
         <section className="max-w-6xl mx-auto px-6 mb-24">
           <div className="mb-8 flex items-center justify-between">
@@ -944,11 +942,10 @@ export default function FacultyPage() {
         <SocialCarousel showSocial={showSocial} showLanguage={showLanguage} />
       )}
 
-      {/* ── STATIC SECTIONS (OTHER) ─────────────────────────────────────── */}
+      {/* ── OTHER SECTIONS ───────────────────────────────────────────────── */}
       {showOther && (
         <>
           <section className="max-w-6xl mx-auto px-6 mb-24 grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Civics */}
             <div>
               <div className="mb-8 flex items-center gap-6">
                 <h2 className="font-serif text-[15px] font-bold text-[#033327] leading-none">
@@ -982,7 +979,6 @@ export default function FacultyPage() {
               </div>
             </div>
 
-            {/* Physical Education */}
             <div>
               <div className="mb-8 flex items-center gap-6">
                 <h2 className="font-serif text-[15px] font-bold text-[#033327] leading-none">
@@ -1010,7 +1006,6 @@ export default function FacultyPage() {
             </div>
           </section>
 
-          {/* ICT / Computer Studies */}
           <section className="max-w-6xl mx-auto px-6 mb-32">
             <div className="mb-8 flex items-center gap-6">
               <h2 className="font-serif text-[15px] font-bold text-[#033327] leading-none">

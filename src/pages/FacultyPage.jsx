@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Award, ArrowRight } from "lucide-react";
 
-// Dummy Data
+// ─── DUMMY DATA ──────────────────────────────────────────────────────────────
+
 const mathStaff = [
   {
     name: "Dr. Elias Tadesse",
@@ -202,7 +203,7 @@ function ResultCard({ member, query }) {
           <img
             src={member.img}
             alt={member.name}
-            className="w-12 h-12 rounded-full object-cover shrink-0"
+            className="w-12 h-12 rounded-full object-cover shrink-0 max-w-full"
           />
         ) : (
           <div className="w-12 h-12 rounded-full bg-[#F6F4EB] flex items-center justify-center shrink-0 border border-white shadow-sm">
@@ -238,7 +239,7 @@ function ResultCard({ member, query }) {
   );
 }
 
-// ─── CAROUSEL HOOK & COMPONENTS ──────────────────────────────────────────────
+// ─── CAROUSEL HOOK ───────────────────────────────────────────────────────────
 
 function useCarousel(total, itemsVisible = 1, timerMs = 4000) {
   const [index, setIndex] = useState(0);
@@ -333,6 +334,8 @@ function Timer({ progress, paused }) {
   );
 }
 
+// ─── MATH CAROUSEL ──────────────────────────────────────────────────────────
+
 function MathCarousel() {
   const pairs = [];
   for (let i = 0; i < mathStaff.length; i += 2) {
@@ -347,29 +350,38 @@ function MathCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="flex items-end justify-between mb-8">
-        <div className="flex items-end gap-3">
-          <h2 className="font-serif text-[1.75rem] font-bold text-[#033327] leading-none">
+      {/* Responsive header with wrap and visible arrows */}
+      <div className="flex flex-wrap items-end justify-between mb-8 gap-2">
+        <div className="flex items-end gap-3 flex-1 min-w-0">
+          <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold text-[#033327] leading-none truncate">
             Mathematics
           </h2>
-          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-0.5">
+          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-0.5 whitespace-nowrap">
             DEPT. 1956 A
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-shrink-0">
           <Timer progress={progress} paused={paused} />
           <div className="flex gap-2">
             <button
               onClick={prev}
               disabled={index <= 0}
-              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${index <= 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                index <= 0
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:bg-[#033327] hover:text-white"
+              }`}
             >
               <ArrowRight size={14} className="rotate-180" />
             </button>
             <button
               onClick={next}
               disabled={index >= maxIndex}
-              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${index >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                index >= maxIndex
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:bg-[#033327] hover:text-white"
+              }`}
             >
               <ArrowRight size={14} />
             </button>
@@ -393,7 +405,7 @@ function MathCarousel() {
                   <img
                     src={pair.large.img}
                     alt={pair.large.name}
-                    className="w-full md:w-56 h-64 md:h-auto object-cover rounded-[1.25rem] shadow-sm"
+                    className="w-full md:w-56 h-64 md:h-auto object-cover rounded-[1.25rem] shadow-sm max-w-full"
                   />
                   <div className="flex flex-col justify-center flex-1 py-2">
                     {pair.large.isHead && (
@@ -451,7 +463,7 @@ function MathCarousel() {
                   <img
                     src={pair.small.img}
                     alt={pair.small.name}
-                    className="w-16 h-16 rounded-xl object-cover mb-6 shadow-sm border border-gray-100"
+                    className="w-16 h-16 rounded-xl object-cover mb-6 shadow-sm border border-gray-100 max-w-full"
                   />
                   <h3 className="font-serif text-lg font-bold text-[#033327] mb-1">
                     {pair.small.name}
@@ -483,6 +495,8 @@ function MathCarousel() {
   );
 }
 
+// ─── SCIENCE CAROUSEL ────────────────────────────────────────────────────────
+
 function ScienceCarousel() {
   const [itemsVisible, setItemsVisible] = useState(4);
   useEffect(() => {
@@ -509,27 +523,36 @@ function ScienceCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-6 flex-1 pr-6">
-          <h2 className="font-serif text-[1.75rem] font-bold text-[#033327] leading-none whitespace-nowrap">
+      {/* Responsive header with wrap and visible arrows */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-6 flex-1 min-w-0 pr-6">
+          <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold text-[#033327] leading-none whitespace-nowrap">
             Natural Sciences
           </h2>
-          <div className="flex-1 h-px bg-[#e5e1d8]/50"></div>
+          <div className="flex-1 h-px bg-[#e5e1d8]/50 hidden sm:block"></div>
         </div>
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-4 flex-shrink-0">
           <Timer progress={progress} paused={paused} />
           <div className="flex gap-2">
             <button
               onClick={prev}
               disabled={index <= 0}
-              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${index <= 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                index <= 0
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:bg-[#033327] hover:text-white"
+              }`}
             >
               <ArrowRight size={14} className="rotate-180" />
             </button>
             <button
               onClick={next}
               disabled={index >= maxIndex}
-              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${index >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+              className={`w-8 h-8 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                index >= maxIndex
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:bg-[#033327] hover:text-white"
+              }`}
             >
               <ArrowRight size={14} />
             </button>
@@ -559,23 +582,31 @@ function ScienceCarousel() {
                   <img
                     src={m.img}
                     alt={m.name}
-                    className={`w-14 h-14 rounded-full object-cover mb-4 shadow-sm border-[3px] ${m.theme === "dark" ? "border-white/10" : "border-white"}`}
+                    className={`w-14 h-14 rounded-full object-cover mb-4 shadow-sm border-[3px] max-w-full ${
+                      m.theme === "dark" ? "border-white/10" : "border-white"
+                    }`}
                   />
                   <h3 className="font-serif text-sm font-bold mb-1">
                     {m.name}
                   </h3>
                   <p
-                    className={`text-[7px] font-bold uppercase tracking-[0.2em] mb-4 ${m.theme === "dark" ? "text-[#c2aa7f]" : "text-[#b5985b]"}`}
+                    className={`text-[7px] font-bold uppercase tracking-[0.2em] mb-4 ${
+                      m.theme === "dark" ? "text-[#c2aa7f]" : "text-[#b5985b]"
+                    }`}
                   >
                     {m.role}
                   </p>
                   <p
-                    className={`text-[11px] font-serif italic leading-relaxed mb-8 ${m.theme === "dark" ? "text-white/70" : "text-gray-500"}`}
+                    className={`text-[11px] font-serif italic leading-relaxed mb-8 ${
+                      m.theme === "dark" ? "text-white/70" : "text-gray-500"
+                    }`}
                   >
                     {m.quote}
                   </p>
                   <span
-                    className={`text-[8px] font-bold uppercase tracking-[0.2em] mt-auto ${m.theme === "dark" ? "text-white/50" : "text-gray-400"}`}
+                    className={`text-[8px] font-bold uppercase tracking-[0.2em] mt-auto ${
+                      m.theme === "dark" ? "text-white/50" : "text-gray-400"
+                    }`}
                   >
                     {m.tenure}
                   </span>
@@ -588,6 +619,8 @@ function ScienceCarousel() {
     </section>
   );
 }
+
+// ─── SOCIAL & LANGUAGE CAROUSEL ────────────────────────────────────────────
 
 function SocialCarousel({ showSocial, showLanguage }) {
   const socialPairs = [];
@@ -609,29 +642,37 @@ function SocialCarousel({ showSocial, showLanguage }) {
           onMouseEnter={() => social.setPaused(true)}
           onMouseLeave={() => social.setPaused(false)}
         >
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="font-serif text-[1.75rem] font-bold text-[#033327] mb-1 leading-none">
+              <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold text-[#033327] mb-1 leading-none">
                 Social Sciences
               </h2>
               <span className="text-[7px] font-bold text-gray-400 uppercase tracking-[0.2em]">
                 HISTORICAL PERSPECTIVES
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <Timer progress={social.progress} paused={social.paused} />
               <div className="flex gap-1">
                 <button
                   onClick={social.prev}
                   disabled={social.index <= 0}
-                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${social.index <= 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                    social.index <= 0
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:bg-[#033327] hover:text-white"
+                  }`}
                 >
                   <ArrowRight size={10} className="rotate-180" />
                 </button>
                 <button
                   onClick={social.next}
                   disabled={social.index >= social.maxIndex}
-                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${social.index >= social.maxIndex ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                    social.index >= social.maxIndex
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:bg-[#033327] hover:text-white"
+                  }`}
                 >
                   <ArrowRight size={10} />
                 </button>
@@ -653,7 +694,7 @@ function SocialCarousel({ showSocial, showLanguage }) {
                       <img
                         src={m.img}
                         alt={m.name}
-                        className="w-[104px] h-[104px] rounded-2xl object-cover shrink-0 border border-gray-100 shadow-sm"
+                        className="w-20 h-20 sm:w-[104px] sm:h-[104px] rounded-2xl object-cover shrink-0 border border-gray-100 shadow-sm max-w-full"
                       />
                       <div className="flex-1 py-2">
                         <h3 className="font-serif text-base font-bold text-[#033327] mb-0.5">
@@ -692,29 +733,37 @@ function SocialCarousel({ showSocial, showLanguage }) {
           onMouseEnter={() => lang.setPaused(true)}
           onMouseLeave={() => lang.setPaused(false)}
         >
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="font-serif text-[1.75rem] font-bold text-[#033327] mb-1 leading-none">
+              <h2 className="font-serif text-2xl sm:text-[1.75rem] font-bold text-[#033327] mb-1 leading-none">
                 Languages
               </h2>
               <span className="text-[7px] font-bold text-gray-400 uppercase tracking-[0.2em]">
                 LINGUISTIC HERITAGE
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <Timer progress={lang.progress} paused={lang.paused} />
               <div className="flex gap-1">
                 <button
                   onClick={lang.prev}
                   disabled={lang.index <= 0}
-                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${lang.index <= 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                    lang.index <= 0
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:bg-[#033327] hover:text-white"
+                  }`}
                 >
                   <ArrowRight size={10} className="rotate-180" />
                 </button>
                 <button
                   onClick={lang.next}
                   disabled={lang.index >= lang.maxIndex}
-                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${lang.index >= lang.maxIndex ? "opacity-30 cursor-not-allowed" : "hover:bg-[#033327] hover:text-white"}`}
+                  className={`w-6 h-6 rounded-full border border-[#e5e1d8] flex items-center justify-center transition-colors ${
+                    lang.index >= lang.maxIndex
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:bg-[#033327] hover:text-white"
+                  }`}
                 >
                   <ArrowRight size={10} />
                 </button>
@@ -729,7 +778,7 @@ function SocialCarousel({ showSocial, showLanguage }) {
               {langPairs.map((pair, idx) => (
                 <div
                   key={idx}
-                  className="w-full shrink-0 grid grid-cols-2 gap-5"
+                  className="w-full shrink-0 grid grid-cols-1 sm:grid-cols-2 gap-5"
                 >
                   {pair.map((m, i) => (
                     <div
@@ -739,7 +788,7 @@ function SocialCarousel({ showSocial, showLanguage }) {
                       <img
                         src={m.img}
                         alt={m.name}
-                        className="w-full h-36 rounded-[1.25rem] object-cover mb-5 shadow-sm border border-white/50"
+                        className="w-full h-36 rounded-[1.25rem] object-cover mb-5 shadow-sm border border-white/50 max-w-full"
                       />
                       <h3 className="font-serif text-[13px] font-bold text-[#033327] mb-1">
                         {m.name}
@@ -800,7 +849,7 @@ export default function FacultyPage() {
     (activeFilter === "ALL FACULTY" || activeFilter === "OTHER");
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen text-[#1a1a1a]">
+    <div className="bg-[#FAF8F5] min-h-screen text-[#1a1a1a] overflow-x-hidden">
       {/* ── HEADER ───────────────────────────────────────────────────────── */}
       <div className="text-center pt-24 pb-16 px-6">
         <p className="text-[9px] font-bold text-[#b5985b] uppercase tracking-[0.25em] mb-4">
@@ -895,7 +944,7 @@ export default function FacultyPage() {
         <SocialCarousel showSocial={showSocial} showLanguage={showLanguage} />
       )}
 
-      {/* ── STATIC SECTIONS ──────────────────────────────────────────────── */}
+      {/* ── STATIC SECTIONS (OTHER) ─────────────────────────────────────── */}
       {showOther && (
         <>
           <section className="max-w-6xl mx-auto px-6 mb-24 grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -910,7 +959,7 @@ export default function FacultyPage() {
               <div className="bg-[#b3beaf] rounded-[2rem] p-6 flex flex-col sm:flex-row items-center sm:items-stretch gap-6 shadow-md border border-white/20">
                 <img
                   src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300"
-                  className="w-36 h-40 sm:h-auto rounded-2xl object-cover shadow-sm border border-white/30 shrink-0"
+                  className="w-36 h-40 sm:h-auto rounded-2xl object-cover shadow-sm border border-white/30 shrink-0 max-w-full"
                   alt="Ato Mebratu"
                 />
                 <div className="py-4 flex flex-col justify-center">
@@ -972,7 +1021,7 @@ export default function FacultyPage() {
             <div className="bg-[#F6F4EB] rounded-[3rem] p-10 flex flex-col md:flex-row items-center gap-12 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_2px_10px_rgba(0,0,0,0.02)]">
               <img
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400"
-                className="w-48 h-48 rounded-full object-cover shadow-sm border-[6px] border-white shrink-0"
+                className="w-48 h-48 rounded-full object-cover shadow-sm border-[6px] border-white shrink-0 max-w-full"
                 alt="Ato Biruk L."
               />
               <div>

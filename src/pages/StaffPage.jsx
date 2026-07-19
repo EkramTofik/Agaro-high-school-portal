@@ -4,41 +4,6 @@ export default function StaffPage() {
   return (
     // Root container – prevents horizontal scroll on all devices
     <div className="bg-[#FAF8F5] min-h-screen text-[#1a1a1a] flex flex-col md:flex-row overflow-x-hidden">
-      {/* ── SIDEBAR NAVIGATION ───────────────────────────── */}
-      <aside className="w-full md:w-[220px] lg:w-[260px] md:min-h-screen bg-white/80 backdrop-blur-sm border-b md:border-b-0 md:border-r border-[#e5e1d8] sticky top-0 z-50 md:static flex-shrink-0 px-4 py-3 md:px-6 md:py-8 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-start gap-3 md:gap-8 overflow-x-auto md:overflow-x-visible">
-        <div className="flex items-center gap-3 md:gap-0 md:flex-col md:items-start shrink-0">
-          <span className="text-xl font-serif font-bold text-[#033327] tracking-tight whitespace-nowrap">
-            Agaro<span className="text-[#FFDEA4]">.</span>
-          </span>
-          <span className="hidden md:block text-[9px] uppercase tracking-[0.2em] text-gray-400 font-semibold mt-0.5">
-            High School
-          </span>
-        </div>
-
-        <nav className="flex md:flex-col gap-3 md:gap-4 text-[10px] font-semibold uppercase tracking-[0.08em] whitespace-nowrap">
-          <a href="#" className="nav-link">
-            Institute
-          </a>
-          <a href="#" className="nav-link active">
-            Staff
-          </a>
-          <a href="#" className="nav-link">
-            Academics
-          </a>
-          <a href="#" className="nav-link">
-            Archives
-          </a>
-          <a href="#" className="nav-link">
-            Contact
-          </a>
-        </nav>
-
-        <div className="md:hidden flex items-center gap-2 text-[9px] text-gray-400 uppercase tracking-widest">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FFDEA4]"></span>
-          <span>menu</span>
-        </div>
-      </aside>
-
       {/* ── MAIN CONTENT ─────────────────────────────────── */}
       <main className="flex-1 min-w-0">
         {" "}

@@ -1,37 +1,39 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import HomePage from './pages/HomePage'
-import LegacyPage from './pages/LegacyPage'
-import HistoryPage from './pages/HistoryPage'
-import StaffPage from './pages/StaffPage'
-import GalleryPage from './pages/GalleryPage'
-import ContactPage from './pages/ContactPage'
-import FacultyPage from './pages/FacultyPage'
-import StudentLifePage from './pages/StudentLifePage'
-import ArchivePage from './pages/ArchivePage'
-import AchievementsPage from './pages/AchievementsPage'
-import ResourceHubPage from './pages/ResourceHubPage'
-import NewsPage from './pages/NewsPage'
-import AlumniPage from './pages/AlumniPage'
-import AdminDashboard from './pages/AdminDashboard'
-import AdminAlumniPage from './pages/AdminAlumniPage'
-import AdminGalleryPage from './pages/AdminGalleryPage'
-import AdminStudentLifePage from './pages/AdminStudentLifePage'
-import AdminFacultyDirectoryPage from './pages/AdminFacultyDirectoryPage'
-import AdminMessagesPage from './pages/AdminMessagesPage'
-import AdminAcademicRecordsPage from './pages/AdminAcademicRecordsPage'
-import AdminNewsPage from './pages/AdminNewsPage'
-import NotFoundPage from './pages/NotFoundPage'
-import ScrollToTop from './components/ScrollToTop'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import HistoryPage from "./pages/HistoryPage";
+import StaffPage from "./pages/StaffPage";
+import GalleryPage from "./pages/GalleryPage";
+import ContactPage from "./pages/ContactPage";
+import FacultyPage from "./pages/FacultyPage";
+import StudentLifePage from "./pages/StudentLifePage";
+import AchievementsPage from "./pages/AchievementsPage";
+import ResourceHubPage from "./pages/ResourceHubPage";
+import NewsPage from "./pages/NewsPage";
+import AlumniPage from "./pages/AlumniPage";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminAlumniPage from "./pages/AdminAlumniPage";
+import AdminGalleryPage from "./pages/AdminGalleryPage";
+import AdminStudentLifePage from "./pages/AdminStudentLifePage";
+import AdminFacultyDirectoryPage from "./pages/AdminFacultyDirectoryPage";
+import AdminMessagesPage from "./pages/AdminMessagesPage";
+import AdminAcademicRecordsPage from "./pages/AdminAcademicRecordsPage";
+import AdminNewsPage from "./pages/AdminNewsPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 /* Pages that get their own full-screen layout (no shared Navbar/Footer) */
-const STANDALONE = ['/admin']
+const STANDALONE = ["/admin"];
 
 function AppShell() {
-  const location = useLocation()
-  const isStandalone = STANDALONE.some(p => location.pathname.startsWith(p))
+  const location = useLocation();
+  const isStandalone = STANDALONE.some((p) => location.pathname.startsWith(p));
 
   return (
     <>
@@ -41,10 +43,19 @@ function AppShell() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/alumni" element={<AdminAlumniPage />} />
           <Route path="/admin/gallery" element={<AdminGalleryPage />} />
-          <Route path="/admin/student-life" element={<AdminStudentLifePage />} />
-          <Route path="/admin/faculty" element={<AdminFacultyDirectoryPage />} />
+          <Route
+            path="/admin/student-life"
+            element={<AdminStudentLifePage />}
+          />
+          <Route
+            path="/admin/faculty"
+            element={<AdminFacultyDirectoryPage />}
+          />
           <Route path="/admin/messages" element={<AdminMessagesPage />} />
-          <Route path="/admin/academic-records" element={<AdminAcademicRecordsPage />} />
+          <Route
+            path="/admin/academic-records"
+            element={<AdminAcademicRecordsPage />}
+          />
           <Route path="/admin/news" element={<AdminNewsPage />} />
         </Routes>
       ) : (
@@ -70,7 +81,7 @@ function AppShell() {
         </div>
       )}
     </>
-  )
+  );
 }
 
 function App() {
@@ -78,7 +89,7 @@ function App() {
     <Router>
       <AppShell />
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

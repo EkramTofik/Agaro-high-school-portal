@@ -155,19 +155,18 @@ export default function AdminCollectionPage({ collection }) {
   useEffect(() => {
     load();
   }, [collection]);
-  const fields = config.fields.map(([name, label, required, type]) => ({
-    name,
-    label,
-    required,
-    type,
-    min,
-    max,
-    ...(min !== undefined ? { min } : {}),
-    ...(max !== undefined ? { max } : {}),
-    ...(collection === "team" && name === "category"
-      ? { options: ["Football", "Athletics", "Volleyball"] }
-      : {}),
-  }));
+  const fields = config.fields.map(
+    ([name, label, required, type, defaultValue]) => ({
+      name,
+      label,
+      required,
+      type,
+      ...(defaultValue !== undefined ? { defaultValue } : {}),
+      ...(collection === "team" && name === "category"
+        ? { options: ["Football", "Athletics", "Volleyball"] }
+        : {}),
+    }),
+  );
   const save = async (values) => {
     setSaving(true);
     try {
@@ -186,7 +185,7 @@ export default function AdminCollectionPage({ collection }) {
     }
   };
   return (
-    <div className="min-h-screen bg-[#FAF8F5] p-8 text-[#1a1a1a]">
+    <div className="p-8 text-[#1a1a1a]">
       <h1 className="font-serif text-3xl font-bold text-[#033327]">
         {config.title} Management
       </h1>

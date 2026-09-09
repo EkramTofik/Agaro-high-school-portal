@@ -6,7 +6,12 @@ export const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
-    if (!stored) return null;
+    const token = localStorage.getItem("token");
+    if (!stored || !token) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      return null;
+    }
     try {
       return JSON.parse(stored);
     } catch {
@@ -46,13 +51,16 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
   const isAdmin = user?.role === "admin";
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAdmin, loading }}>
+    <AuthContext.Provider
+      value={{ user, setUser, login, logout, isAdmin, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

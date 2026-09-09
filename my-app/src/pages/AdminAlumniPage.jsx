@@ -23,17 +23,8 @@ const icons = {
   userPlus: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
 }
 
-const navItems = [
-  { icon: icons.users, label: 'Faculty' },
-  { icon: icons.globe, label: 'News' },
-  { icon: icons.doc, label: 'Academic Records' },
-  { icon: icons.alumni, label: 'Alumni', active: true },
-  { icon: icons.gallery, label: 'Gallery' },
-  { icon: icons.megaphone, label: 'Inquiries' },
-]
 
 export default function AdminAlumniPage() {
-  const [activeNav, setActiveNav] = useState('Alumni')
   const [category, setCategory] = useState('All')
   const [sort, setSort] = useState('Year')
   const [alumni, setAlumni] = useState([])
@@ -73,7 +64,7 @@ export default function AdminAlumniPage() {
   }, [alumni, category, sort])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0e0e0e]">
+    <div className="bg-[#f4f1ec]">
       {formAlumnus !== null && <AdminFormModal title={formAlumnus._id ? 'Edit alumni profile' : 'Add alumni profile'} initialValues={formAlumnus} onClose={() => setFormAlumnus(null)} onSubmit={saveAlumnus} submitting={saving} fields={[
         { name: 'fullName', label: 'Full name', required: true }, { name: 'graduationYear', label: 'Graduation year', type: 'number' },
         { name: 'profession', label: 'Profession', type: 'select', options: [
@@ -87,39 +78,8 @@ export default function AdminAlumniPage() {
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
-      {/* ── Sidebar ────────────────────────────────────────── */}
-      <aside className="w-44 shrink-0 flex flex-col h-full bg-[#111] border-r border-white/5">
-        <div className="px-5 py-6 border-b border-white/5">
-          <p className="font-serif text-sm font-bold text-white leading-tight">Agaro High Admin</p>
-          <p className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em] mt-0.5">Living Archive Portal</p>
-        </div>
-        <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
-          {navItems.map(item => (
-            <button key={item.label} onClick={() => setActiveNav(item.label)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-[11px] font-semibold transition-colors ${
-                activeNav === item.label ? 'bg-white/10 text-white border-l-2 border-[#FFDEA4]' : 'text-white/40 hover:text-white/70 hover:bg-white/5'
-              }`}>
-              <span className={activeNav === item.label ? 'text-[#FFDEA4]' : 'text-white/30'}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="px-4 py-4 border-t border-white/5">
-          <button className="w-full py-2.5 rounded-lg bg-[#033327] text-[10px] font-bold text-[#FFDEA4] uppercase tracking-wider hover:bg-[#0d4a3b] transition-colors">
-            + New Entry
-          </button>
-        </div>
-        <div className="px-5 pb-5 space-y-3 border-t border-white/5 pt-4">
-          {[['Settings', icons.settings], ['Support', icons.support]].map(([label, icon]) => (
-            <button key={label} className="flex items-center gap-2 text-[11px] text-white/30 hover:text-white/60 transition-colors w-full">
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      {/* ── Main ──────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#f4f1ec]">
+{/* ── Main ──────────────────────────────────────────── */}
+      <main className="bg-[#f4f1ec]">
 
         {/* Top bar */}
         <header className="shrink-0 flex items-center gap-4 px-8 py-3 bg-[#f4f1ec] border-b border-[#e5e1d8]">
@@ -139,7 +99,7 @@ export default function AdminAlumniPage() {
         </header>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-10 py-10">
+        <div className="px-10 py-10">
 
           {/* Hero */}
           <div className="text-center mb-8">

@@ -294,16 +294,8 @@ const icons = {
   ),
 };
 
-const navItems = [
-  { icon: icons.archiveHome, label: "Archive Home" },
-  { icon: icons.users, label: "Faculty Directory" },
-  { icon: icons.news, label: "News Updates", active: true },
-  { icon: icons.star, label: "Student Results" },
-  { icon: icons.resource, label: "Resource Manager" },
-];
 
 export default function AdminNewsPage() {
-  const [activeNav, setActiveNav] = useState("News Updates");
   const [isUrgent, setIsUrgent] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -386,7 +378,7 @@ export default function AdminNewsPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FAF8F5] text-[#1a1a1a]">
+    <div className="bg-[#FAF8F5] text-[#1a1a1a]">
       {editingNews && <AdminFormModal title="Edit news update" initialValues={editingNews} onClose={() => setEditingNews(null)} onSubmit={saveNews} submitting={savingNews} fields={[
         { name: "title", label: "Headline", required: true },
         { name: "category", label: "Category", type: "select", options: ["Academic", "Sports", "Cultural", "Meeting", "Event", "Other"] },
@@ -397,65 +389,9 @@ export default function AdminNewsPage() {
         { name: "publishedAt", label: "Published at", type: "datetime-local", emptyValue: null }
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
-      {/* ── Sidebar ────────────────────────────────────────── */}
-      <aside className="w-60 shrink-0 flex flex-col h-full bg-[#f4f1ec] border-r border-[#e5e1d8]">
-        {/* Logo Area */}
-        <div className="px-6 py-10 flex flex-col items-start justify-center">
-          <h1 className="font-serif text-[22px] font-bold text-[#033327] leading-tight mb-2">
-            Agaro High
-            <br />
-            School
-          </h1>
-          <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-            Administrative Panel
-          </p>
-        </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => setActiveNav(item.label)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-[12px] font-semibold transition-colors ${
-                activeNav === item.label
-                  ? "bg-[#e5e1d8] text-[#033327] border-r-[3px] border-[#033327]"
-                  : "text-gray-600 hover:text-[#033327] hover:bg-[#e5e1d8]/50"
-              }`}
-            >
-              <span
-                className={
-                  activeNav === item.label ? "text-[#033327]" : "text-gray-500"
-                }
-              >
-                {item.icon}
-              </span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Footer Area */}
-        <div className="px-6 pb-8 space-y-4 pt-6 border-t border-[#e5e1d8] mx-4">
-          <button className="w-full py-2.5 rounded-md bg-[#033327] text-[10px] font-bold text-white tracking-wider hover:bg-[#0d4a3b] transition-colors flex items-center justify-center gap-2 mb-4">
-            <span className="text-sm leading-none">+</span> New Archive Entry
-          </button>
-          {[
-            ["Settings", icons.settings],
-            ["Support", icons.support],
-          ].map(([label, icon]) => (
-            <button
-              key={label}
-              className="flex items-center gap-3 text-[12px] font-semibold text-gray-600 hover:text-[#033327] transition-colors w-full"
-            >
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      {/* ── Main ──────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#FAF8F5]">
+{/* ── Main ──────────────────────────────────────────── */}
+      <main className="bg-[#FAF8F5]">
         {/* Top Header */}
         <header className="shrink-0 flex items-center px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
           <h2 className="font-serif text-[15px] font-bold text-[#033327] leading-tight flex items-center gap-2">
@@ -493,7 +429,7 @@ export default function AdminNewsPage() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-12 py-12 pb-24">
+        <div className="px-12 py-12 pb-24">
           <div className="max-w-3xl mx-auto">
             {/* Header Section */}
             <div className="text-center mb-10">

@@ -27,17 +27,8 @@ const icons = {
   palette: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b5985b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="5.5" r="2.5"/><circle cx="8.5" cy="8.5" r="2.5"/><circle cx="8.5" cy="15.5" r="2.5"/><circle cx="13.5" cy="18.5" r="2.5"/><path d="M16 12a4 4 0 0 0 4-4"/><path d="M16 12a4 4 0 0 1 4 4"/></svg>,
 }
 
-const navItems = [
-  { icon: icons.globe, label: 'News' },
-  { icon: icons.doc, label: 'Academic Records' },
-  { icon: icons.alumni, label: 'Alumni' },
-  { icon: icons.users, label: 'Faculty & Life', active: true },
-  { icon: icons.gallery, label: 'Gallery' },
-  { icon: icons.megaphone, label: 'Inquiries' },
-]
 
 export default function AdminStudentLifePage() {
-  const [activeNav, setActiveNav] = useState('Faculty & Life')
   const [clubs, setClubs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -76,7 +67,7 @@ export default function AdminStudentLifePage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FAF8F5]">
+    <div className="bg-[#FAF8F5]">
       {formClub !== null && <AdminFormModal title={formClub._id ? 'Edit club' : 'Add club'} initialValues={{ category: 'Student Life', ...formClub }} onClose={() => setFormClub(null)} onSubmit={saveClub} submitting={saving} fields={[
         { name: 'name', label: 'Club name', required: true }, { name: 'category', label: 'Category' }, { name: 'coordinatorName', label: 'Coordinator' },
         { name: 'imageUrl', label: 'Image URL' }, { name: 'description', label: 'Description', type: 'textarea' },
@@ -84,44 +75,8 @@ export default function AdminStudentLifePage() {
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
-      {/* ── Sidebar ────────────────────────────────────────── */}
-      <aside className="w-56 shrink-0 flex flex-col h-full bg-[#f4f1ec] border-r border-[#e5e1d8]">
-        <div className="px-6 py-8 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full border border-[#b5985b] flex items-center justify-center shrink-0">
-            {icons.school}
-          </div>
-          <div>
-            <p className="font-serif text-[15px] font-bold text-[#033327] leading-tight">Agaro Admin</p>
-            <p className="text-[7px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-1">Living Archive Portal</p>
-          </div>
-        </div>
-        <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
-          {navItems.map(item => (
-            <button key={item.label} onClick={() => setActiveNav(item.label)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-[11px] font-semibold transition-colors ${
-                activeNav === item.label ? 'bg-[#e5e1d8] text-[#033327] border-l-[3px] border-[#b5985b]' : 'text-gray-600 hover:text-[#033327] hover:bg-[#e5e1d8]/50'
-              }`}>
-              <span className={activeNav === item.label ? 'text-[#033327]' : 'text-gray-500'}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="px-5 py-4 pt-4 border-t border-[#e5e1d8]">
-          <button className="w-full py-3 rounded-md bg-[#033327] text-[10px] font-bold text-white tracking-wider hover:bg-[#0d4a3b] transition-colors flex items-center justify-center gap-2">
-            <span className="text-sm leading-none mb-0.5">+</span> New Entry
-          </button>
-        </div>
-        <div className="px-6 pb-6 space-y-4 pt-4">
-          {[['Settings', icons.settings], ['Support', icons.support]].map(([label, icon]) => (
-            <button key={label} className="flex items-center gap-3 text-[11px] font-semibold text-gray-500 hover:text-[#033327] transition-colors w-full">
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      {/* ── Main ──────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#FAF8F5] relative">
+{/* ── Main ──────────────────────────────────────────── */}
+      <main className="bg-[#FAF8F5] relative">
 
         {/* Top bar */}
         <header className="shrink-0 flex items-center gap-4 px-8 py-3 bg-[#FAF8F5] border-b border-[#e5e1d8]">
@@ -147,7 +102,7 @@ export default function AdminStudentLifePage() {
         </header>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-10 py-10 pb-24">
+        <div className="px-10 py-10 pb-24">
           <div className="max-w-5xl mx-auto">
 
             {/* Header */}

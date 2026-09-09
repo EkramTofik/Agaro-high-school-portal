@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import api from '../api/axios'
 import AdminFormModal from '../components/AdminFormModal'
 import AdminConfirmModal from '../components/AdminConfirmModal'
@@ -23,21 +23,14 @@ const icons = {
   award: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a8a6a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
 }
 
-const navItems = [
-  { icon: icons.archiveHome, label: 'Archive Home' },
-  { icon: icons.users, label: 'Faculty Directory', active: true },
-  { icon: icons.news, label: 'News Updates' },
-  { icon: icons.star, label: 'Student Results' },
-  { icon: icons.resource, label: 'Resource Manager' },
-]
 
 export default function AdminFacultyDirectoryPage() {
-  const [activeNav, setActiveNav] = useState('Faculty Directory')
   const [searchQuery, setSearchQuery] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('All Faculty')
   const [faculty, setFaculty] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
   const [formPerson, setFormPerson] = useState(null)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -48,11 +41,12 @@ export default function AdminFacultyDirectoryPage() {
       const payload = res.data?.data?.data ?? res.data?.data ?? []
       setFaculty((Array.isArray(payload) ? payload : [payload]).filter(Boolean).map((item) => ({
         id: item._id, name: item.fullName || 'Unnamed staff member', role: item.title || 'Educator',
-        dept: item.department?.name || item.department || 'Other', year: item.yearsAtSchool || item.yearsExperience || '—',
+        dept: item.department?.name || (typeof item.department === 'string' ? item.department : 'Other'),
+        year: item.yearsAtSchool ?? item.yearsExperience ?? '—',
         status: item.isActive === false ? 'INACTIVE' : 'PERMANENT', avatar: item.imageUrl || '', raw: item,
         seal: icons.users, sealColor: '#033327',
       })))
-    }).catch(() => setError('Could not load faculty records.')).finally(() => setLoading(false))
+    }).catch((e) => setError(e.response?.data?.message || 'Could not load faculty records.')).finally(() => setLoading(false))
   }
 
   useEffect(() => {
@@ -60,19 +54,83 @@ export default function AdminFacultyDirectoryPage() {
     api.get('/department').then((res) => {
       const payload = res.data?.data?.data ?? res.data?.data ?? []
       setDepartments((Array.isArray(payload) ? payload : [payload]).filter(Boolean))
-    }).catch(() => setError('Could not load departments.'))
+    }).catch((e) => setError(e.response?.data?.message || 'Could not load departments.'))
   }, [])
-  const addFaculty = () => setFormPerson({})
-  const editFaculty = (person) => setFormPerson(person.raw || person)
+  const addFaculty = () => {
+    setFormError('')
+    setFormPerson({})
+  }
+  const editFaculty = (person) => {
+    setFormError('')
+    setFormPerson(person.raw || person)
+  }
   const saveFaculty = async (values) => {
     setSaving(true)
-    try { await (formPerson?._id ? api.patch(`/staff/${formPerson._id}`, values) : api.post('/staff', { ...values, isActive: true })); setFormPerson(null); await loadFaculty() }
-    catch (e) { setError(e.response?.data?.message || 'Could not save faculty record.') }
-    finally { setSaving(false) }
+    setFormError('')
+    setError('')
+    try {
+      const payload = {
+        ...values,
+        department: values.department || null,
+        isActive: values.isActive ?? true,
+      }
+      await (formPerson?._id
+        ? api.patch(`/staff/${formPerson._id}`, payload)
+        : api.post('/staff', payload))
+      setFormPerson(null)
+      await loadFaculty()
+    } catch (e) {
+      const status = e.response?.status
+      const message =
+        status === 401
+          ? 'Your session expired. Please log in again, then retry.'
+          : e.response?.data?.message || 'Could not save faculty record.'
+      setFormError(message)
+      setError(message)
+    } finally {
+      setSaving(false)
+    }
   }
   const deleteFaculty = async (person) => {
     setConfirmDelete({ message: `Delete ${person.name}?`, action: async () => { try { await api.delete(`/staff/${person.id}`); await loadFaculty() } catch (e) { setError(e.response?.data?.message || 'Could not delete faculty record.') } } })
   }
+
+  const facultyFields = useMemo(
+    () => [
+      { name: 'fullName', label: 'Full name', required: true },
+      { name: 'title', label: 'Title', required: true },
+      {
+        name: 'department',
+        label: 'Department',
+        type: 'select',
+        emptyValue: null,
+        options: departments.map((department) => ({
+          value: String(department._id),
+          label: department.name,
+        })),
+      },
+      { name: 'qualifications', label: 'Qualifications' },
+      { name: 'leadershipCredentials', label: 'Leadership credentials' },
+      { name: 'yearsAtSchool', label: 'Years at school', type: 'number', min: 0 },
+      { name: 'publishedPapers', label: 'Published papers', type: 'number', min: 0 },
+      { name: 'bio', label: 'Biography', type: 'textarea' },
+      { name: 'imageUrl', label: 'Image URL' },
+      { name: 'isActive', label: 'Active', type: 'checkbox', defaultValue: true },
+      { name: 'isLeadership', label: 'Leadership member', type: 'checkbox', defaultValue: false },
+      { name: 'isPresident', label: 'President', type: 'checkbox', defaultValue: false },
+      { name: 'isVicePresident', label: 'Vice President', type: 'checkbox', defaultValue: false },
+      { name: 'isDistinguished', label: 'Distinguished faculty', type: 'checkbox', defaultValue: false },
+      { name: 'isAdministrative', label: 'Administrative staff', type: 'checkbox', defaultValue: false },
+      { name: 'office', label: 'Office' },
+      { name: 'sortOrder', label: 'Sort order', type: 'number', defaultValue: 0 },
+    ],
+    [departments],
+  )
+
+  const departmentFilters = useMemo(
+    () => ['All Faculty', ...departments.map((department) => department.name)],
+    [departments],
+  )
 
   const filteredFaculty = useMemo(() => {
     return faculty.filter(person => {
@@ -84,61 +142,34 @@ export default function AdminFacultyDirectoryPage() {
   }, [faculty, searchQuery, departmentFilter])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FAF8F5] text-[#1a1a1a]">
+    <div className="bg-[#FAF8F5] text-[#1a1a1a]">
+      {formPerson !== null && (
+        <AdminFormModal
+          title={formPerson._id ? "Edit faculty member" : "Add faculty member"}
+          initialValues={formPerson}
+          onClose={() => {
+            setFormPerson(null)
+            setFormError('')
+          }}
+          onSubmit={saveFaculty}
+          submitting={saving}
+          error={formError}
+          fields={facultyFields}
+        />
+      )}
+      {confirmDelete && (
+        <AdminConfirmModal
+          message={confirmDelete.message}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={async () => {
+            await confirmDelete.action();
+            setConfirmDelete(null);
+          }}
+        />
+      )}
 
-      {/* ── Sidebar ────────────────────────────────────────── */}
-      <aside className="w-60 shrink-0 flex flex-col h-full bg-[#f4f1ec] border-r border-[#e5e1d8]">
-        {/* Logo Area */}
-        <div className="px-6 py-8 flex flex-col items-center justify-center border-b border-[#e5e1d8] mb-4">
-          <div className="w-12 h-12 rounded-full border-2 border-[#b5985b] bg-white flex items-center justify-center mb-3">
-            <div className="w-6 h-6 bg-[#033327] rounded-sm flex items-center justify-center">
-              <span className="text-white text-[8px] font-bold">A</span>
-            </div>
-            {formPerson !== null && <AdminFormModal title={formPerson._id ? 'Edit faculty member' : 'Add faculty member'} initialValues={formPerson} onClose={() => setFormPerson(null)} onSubmit={saveFaculty} submitting={saving} fields={[
-              { name: 'fullName', label: 'Full name', required: true }, { name: 'title', label: 'Title', required: true },
-              { name: 'department', label: 'Department', type: 'select', emptyValue: null, options: departments.map((department) => ({ value: department._id, label: department.name })) }, { name: 'qualifications', label: 'Qualifications' },
-              { name: 'leadershipCredentials', label: 'Leadership credentials' }, { name: 'yearsAtSchool', label: 'Years at school', type: 'number' }, { name: 'publishedPapers', label: 'Published papers', type: 'number' },
-              { name: 'bio', label: 'Biography', type: 'textarea' }, { name: 'imageUrl', label: 'Image URL' },
-              { name: 'isActive', label: 'Active', type: 'checkbox', defaultValue: true },
-              { name: 'isLeadership', label: 'Leadership member', type: 'checkbox', defaultValue: false },
-              { name: 'isPresident', label: 'President', type: 'checkbox', defaultValue: false },
-              { name: 'isVicePresident', label: 'Vice President', type: 'checkbox', defaultValue: false },
-              { name: 'isDistinguished', label: 'Distinguished faculty', type: 'checkbox', defaultValue: false },
-              { name: 'isAdministrative', label: 'Administrative staff', type: 'checkbox', defaultValue: false },
-              { name: 'office', label: 'Office' },
-              { name: 'sortOrder', label: 'Sort order', type: 'number', defaultValue: 0 }
-            ]} />}
-            {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
-          </div>
-          <h1 className="font-serif text-[17px] font-bold text-[#033327] text-center leading-tight">Agaro High School</h1>
-          <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-1">ADMINISTRATIVE PANEL</p>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {navItems.map(item => (
-            <button key={item.label} onClick={() => setActiveNav(item.label)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-[12px] font-semibold transition-colors ${
-                activeNav === item.label ? 'bg-[#e5e1d8] text-[#033327] border-r-[3px] border-[#033327]' : 'text-gray-600 hover:text-[#033327] hover:bg-[#e5e1d8]/50'
-              }`}>
-              <span className={activeNav === item.label ? 'text-[#033327]' : 'text-gray-500'}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Footer Links */}
-        <div className="px-6 pb-6 space-y-4 pt-6 border-t border-[#e5e1d8] mx-4">
-          {[['Settings', icons.settings], ['Support', icons.support]].map(([label, icon]) => (
-            <button key={label} className="flex items-center gap-3 text-[12px] font-semibold text-gray-600 hover:text-[#033327] transition-colors w-full">
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      {/* ── Main ──────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#FAF8F5]">
+{/* ── Main ──────────────────────────────────────────── */}
+      <main className="bg-[#FAF8F5]">
 
         {/* Top Header */}
         <header className="shrink-0 flex items-center px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
@@ -180,7 +211,7 @@ export default function AdminFacultyDirectoryPage() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-12 py-10 pb-20">
+        <div className="px-12 py-10 pb-20">
           <div className="max-w-6xl mx-auto">
 
             {/* Title Section */}
@@ -196,6 +227,10 @@ export default function AdminFacultyDirectoryPage() {
               </button>
             </div>
 
+            {error && (
+              <p className="mb-6 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>
+            )}
+
             {/* Filter & Status Area */}
             <div className="flex flex-col lg:flex-row gap-6 mb-8">
               <div className="flex-1 border border-[#e5e1d8] rounded-xl p-5 bg-[#fcfbfa] shadow-sm">
@@ -203,7 +238,7 @@ export default function AdminFacultyDirectoryPage() {
                   <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Filter by Department</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {['All Faculty', 'Mathematics', 'Natural Sciences', 'Humanities', 'Athletics'].map(dept => (
+                  {departmentFilters.map(dept => (
                     <button 
                       key={dept}
                       onClick={() => setDepartmentFilter(dept)}

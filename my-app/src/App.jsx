@@ -21,10 +21,12 @@ import AdminFacultyDirectoryPage from "./pages/AdminFacultyDirectoryPage";
 import AdminMessagesPage from "./pages/AdminMessagesPage";
 import AdminAcademicRecordsPage from "./pages/AdminAcademicRecordsPage";
 import AdminNewsPage from "./pages/AdminNewsPage";
+import AdminProfilePage from "./pages/AdminProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ScrollToTop from "./components/ScrollToTop";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./components/AdminLayout";
 import AdminCollectionPage from "./pages/AdminCollectionPage";
 import { createPageLoader, newsDetailLoader } from "./api/routeLoaders";
 
@@ -82,26 +84,37 @@ function App() {
         { path: "/alumni", element: <AlumniPage />, loader: createPageLoader(["/alumni"]) },
         { path: "/contact", element: <ContactPage />, loader: createPageLoader(["/school"]) },
         { path: "/login", element: <LoginPage /> },
-        { path: "/admin", element: <ProtectedRoute><AdminDashboard /></ProtectedRoute> },
-        { path: "/admin/dashboard", element: <ProtectedRoute><AdminDashboard /></ProtectedRoute> },
-        { path: "/admin/alumni", element: <ProtectedRoute><AdminAlumniPage /></ProtectedRoute> },
-        { path: "/admin/gallery", element: <ProtectedRoute><AdminGalleryPage /></ProtectedRoute> },
-        { path: "/admin/student-life", element: <ProtectedRoute><AdminStudentLifePage /></ProtectedRoute> },
-        { path: "/admin/faculty", element: <ProtectedRoute><AdminFacultyDirectoryPage /></ProtectedRoute> },
-        { path: "/admin/messages", element: <ProtectedRoute><AdminMessagesPage /></ProtectedRoute> },
-        { path: "/admin/academic-records", element: <ProtectedRoute><AdminAcademicRecordsPage /></ProtectedRoute> },
-        { path: "/admin/news", element: <ProtectedRoute><AdminNewsPage /></ProtectedRoute> },
-        { path: "/admin/users", element: <ProtectedRoute><AdminCollectionPage collection="users" /></ProtectedRoute> },
-        { path: "/admin/school", element: <ProtectedRoute><AdminCollectionPage collection="school" /></ProtectedRoute> },
-        { path: "/admin/departments", element: <ProtectedRoute><AdminCollectionPage collection="department" /></ProtectedRoute> },
-        { path: "/admin/academic-years", element: <ProtectedRoute><AdminCollectionPage collection="academicYear" /></ProtectedRoute> },
-        { path: "/admin/resources", element: <ProtectedRoute><AdminCollectionPage collection="resource" /></ProtectedRoute> },
-        { path: "/admin/clubs", element: <ProtectedRoute><AdminCollectionPage collection="club" /></ProtectedRoute> },
-        { path: "/admin/media-files", element: <ProtectedRoute><AdminCollectionPage collection="mediaFile" /></ProtectedRoute> },
-        { path: "/admin/events", element: <ProtectedRoute><AdminCollectionPage collection="event" /></ProtectedRoute> },
-        { path: "/admin/teams", element: <ProtectedRoute><AdminCollectionPage collection="team" /></ProtectedRoute> },
-        { path: "/admin/student-voices", element: <ProtectedRoute><AdminCollectionPage collection="studentVoice" /></ProtectedRoute> },
-        { path: "/admin/honor-roll", element: <ProtectedRoute><AdminCollectionPage collection="honorRoll" /></ProtectedRoute> },
+        {
+          path: "/admin",
+          element: (
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          ),
+          children: [
+            { index: true, element: <AdminDashboard /> },
+            { path: "dashboard", element: <AdminDashboard /> },
+            { path: "profile", element: <AdminProfilePage /> },
+            { path: "alumni", element: <AdminAlumniPage /> },
+            { path: "gallery", element: <AdminGalleryPage /> },
+            { path: "student-life", element: <AdminStudentLifePage /> },
+            { path: "faculty", element: <AdminFacultyDirectoryPage /> },
+            { path: "messages", element: <AdminMessagesPage /> },
+            { path: "academic-records", element: <AdminAcademicRecordsPage /> },
+            { path: "news", element: <AdminNewsPage /> },
+            { path: "users", element: <AdminCollectionPage collection="users" /> },
+            { path: "school", element: <AdminCollectionPage collection="school" /> },
+            { path: "departments", element: <AdminCollectionPage collection="department" /> },
+            { path: "academic-years", element: <AdminCollectionPage collection="academicYear" /> },
+            { path: "resources", element: <AdminCollectionPage collection="resource" /> },
+            { path: "clubs", element: <AdminCollectionPage collection="club" /> },
+            { path: "media-files", element: <AdminCollectionPage collection="mediaFile" /> },
+            { path: "events", element: <AdminCollectionPage collection="event" /> },
+            { path: "teams", element: <AdminCollectionPage collection="team" /> },
+            { path: "student-voices", element: <AdminCollectionPage collection="studentVoice" /> },
+            { path: "honor-roll", element: <AdminCollectionPage collection="honorRoll" /> },
+          ],
+        },
         { path: "*", element: <NotFoundPage /> },
       ],
     },

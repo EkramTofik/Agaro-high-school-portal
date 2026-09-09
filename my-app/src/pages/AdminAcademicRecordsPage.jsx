@@ -26,16 +26,8 @@ const icons = {
   checkCircle: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b5985b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
 }
 
-const navItems = [
-  { icon: icons.users, label: 'Faculty' },
-  { icon: icons.news, label: 'News' },
-  { icon: icons.doc, label: 'Academic Records', active: true },
-  { icon: icons.alumni, label: 'Alumni' },
-  { icon: icons.gallery, label: 'Gallery' },
-]
 
 export default function AdminAcademicRecordsPage() {
-  const [activeNav, setActiveNav] = useState('Academic Records')
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -73,7 +65,7 @@ export default function AdminAcademicRecordsPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FAF8F5] text-[#1a1a1a]">
+    <div className="bg-[#FAF8F5] text-[#1a1a1a]">
       {formRecord !== null && <AdminFormModal title={formRecord._id ? 'Edit academic record' : 'Add academic record'} initialValues={{ recordType: 'archive', visibility: 'public', fileType: 'PDF', ...formRecord }} onClose={() => setFormRecord(null)} onSubmit={saveRecord} submitting={saving} fields={[
         { name: 'title', label: 'Record title', required: true }, { name: 'fileUrl', label: 'File URL', required: true },
         { name: 'recordType', label: 'Record type', required: true, type: 'select', options: ['exam', 'result', 'study_guide', 'archive', 'report'] },
@@ -84,37 +76,8 @@ export default function AdminAcademicRecordsPage() {
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
-      {/* â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <aside className="w-56 shrink-0 flex flex-col h-full bg-[#f4f1ec] border-r border-[#e5e1d8]">
-        <div className="px-6 py-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#033327] text-white flex items-center justify-center shrink-0">
-            {icons.school}
-          </div>
-          <div>
-            <p className="font-serif text-[15px] font-bold text-[#033327] leading-tight">Agaro High<br/>Admin</p>
-            <p className="text-[7px] font-bold text-gray-500 uppercase tracking-widest mt-1">Living Archive Portal</p>
-          </div>
-        </div>
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {navItems.map(item => (
-            <button key={item.label} onClick={() => setActiveNav(item.label)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-[12px] font-semibold transition-colors ${
-                activeNav === item.label ? 'bg-white text-[#033327] border-l-[3px] border-[#033327] shadow-sm' : 'text-gray-600 hover:text-[#033327] hover:bg-white/50'
-              }`}>
-              <span className={activeNav === item.label ? 'text-[#033327]' : 'text-gray-500'}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="px-6 pb-8 pt-4">
-          <button onClick={addRecord} className="w-full py-3 rounded-md bg-[#033327] text-[10px] font-bold text-white tracking-wider hover:bg-[#0d4a3b] transition-colors flex items-center justify-center gap-2">
-            <span className="text-sm leading-none">+</span> Quick Upload
-          </button>
-        </div>
-      </aside>
-
-      {/* â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#FAF8F5]">
+{/* â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <main className="bg-[#FAF8F5]">
 
         {/* Top Header */}
         <header className="shrink-0 flex items-center justify-between px-10 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
@@ -140,7 +103,7 @@ export default function AdminAcademicRecordsPage() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-12 py-10 pb-20">
+        <div className="px-12 py-10 pb-20">
           <div className="max-w-6xl mx-auto">
 
             {/* Header */}

@@ -23,17 +23,8 @@ const icons = {
   play: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
 }
 
-const navItems = [
-  { icon: icons.users, label: 'Faculty' },
-  { icon: icons.globe, label: 'News' },
-  { icon: icons.doc, label: 'Academic Records' },
-  { icon: icons.alumni, label: 'Alumni' },
-  { icon: icons.gallery, label: 'Gallery' },
-  { icon: icons.megaphone, label: 'Inquiries' },
-]
 
 export default function AdminGalleryPage() {
-  const [activeNav, setActiveNav] = useState('Gallery')
   const [activeTab, setActiveTab] = useState('ALL ASSETS')
   const [assets, setAssets] = useState([])
   const [loading, setLoading] = useState(true)
@@ -73,7 +64,7 @@ export default function AdminGalleryPage() {
   })
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FAF8F5]">
+    <div className="bg-[#FAF8F5]">
       {formAsset !== null && <AdminFormModal title={formAsset._id ? 'Edit gallery asset' : 'Add gallery asset'} initialValues={formAsset} onClose={() => setFormAsset(null)} onSubmit={saveAsset} submitting={saving} fields={[
         { name: 'title', label: 'Title', required: true }, { name: 'imageUrl', label: 'Image URL', required: true },
         { name: 'category', label: 'Category', type: 'select', required: true, options: [
@@ -85,39 +76,8 @@ export default function AdminGalleryPage() {
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
-      {/* ── Pidebar ────────────────────────────────────────── */}
-      <aside className="w-56 shrink-0 flex flex-col h-full bg-[#FAF8F5] border-r border-[#e5e1d8]">
-        <div className="px-6 py-8">
-          <p className="font-serif text-lg font-bold text-[#033327] leading-tight">Agaro High<br/>Admin</p>
-          <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-2">Living Archive Portal</p>
-        </div>
-        <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
-          {navItems.map(item => (
-            <button key={item.label} onClick={() => setActiveNav(item.label)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-[12px] font-semibold transition-colors ${
-                activeNav === item.label ? 'bg-[#f0ede8] text-[#033327] border-l-[3px] border-[#b5985b]' : 'text-gray-600 hover:text-[#033327] hover:bg-[#f0ede8]/50'
-              }`}>
-              <span className={activeNav === item.label ? 'text-[#033327]' : 'text-gray-500'}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="px-5 py-4">
-          <button className="w-full py-3 rounded-md bg-[#033327] text-[11px] font-bold text-white tracking-wider hover:bg-[#0d4a3b] transition-colors flex items-center justify-center gap-2">
-            <span className="text-lg leading-none mb-0.5">+</span> New Entry
-          </button>
-        </div>
-        <div className="px-6 pb-6 space-y-4 pt-4 border-t border-[#e5e1d8]">
-          {[['Pettings', icons.settings], ['Pupport', icons.support]].map(([label, icon]) => (
-            <button key={label} className="flex items-center gap-3 text-[12px] font-semibold text-gray-500 hover:text-[#033327] transition-colors w-full">
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      {/* ── Main ──────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#FAF8F5]">
+{/* ── Main ──────────────────────────────────────────── */}
+      <main className="bg-[#FAF8F5]">
 
         {/* Top bar */}
         <header className="shrink-0 flex items-center gap-4 px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
@@ -137,7 +97,7 @@ export default function AdminGalleryPage() {
         </header>
 
         {/* Pcrollable content */}
-        <div className="flex-1 overflow-y-auto px-10 py-10">
+        <div className="px-10 py-10">
 
           <div className="max-w-5xl mx-auto">
             {/* Header */}

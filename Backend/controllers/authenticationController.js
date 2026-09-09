@@ -47,7 +47,14 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  let decoded;
+  try {
+    decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return next(
+      new AppError("Invalid or expired token. Please log in again.", 401),
+    );
+  }
 
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
@@ -70,3 +77,64 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((key) => {
+    if (allowedFields.includes(key)) newObj[key] = obj[key];
+  });
+  return newObj;
+};
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new AppError(
+        "This route is not for password updates. Use /updateMyPassword.",
+        400,
+      ),
+    );
+  }
+
+  const filteredBody = filterObj(req.body, "fullName", "email");
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user: updatedUser,
+    },
+  });
+});
+
+exports.updateMyPassword = catchAsync(async (req, res, next) => {
+  const { currentPassword, password, passwordConfirm } = req.body;
+
+  if (!currentPassword || !password || !passwordConfirm) {
+    return next(
+      new AppError(
+        "Please provide current password, new password, and confirmation.",
+        400,
+      ),
+    );
+  }
+
+  const user = await User.findById(req.user.id).select("+password");
+  if (!(await user.correctPassword(currentPassword, user.password))) {
+    return next(new AppError("Your current password is wrong.", 401));
+  }
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  await user.save();
+
+  createSendToken(user, 200, res);
+});

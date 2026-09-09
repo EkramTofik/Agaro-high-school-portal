@@ -102,17 +102,16 @@ const BarChart = () => {
   );
 };
 
-const honors = [
-  { icon: Award, title: "School of Excellence", sub: "Ministry of Education Award" },
-  { icon: Trophy, title: "Regional Academic Prize", sub: "East Africa Education Forum" },
-  { icon: Star, title: "Lagos State International", sub: "Academic Achievement Award" },
-];
+const honorIcons = [Award, Trophy, Star, BookOpen];
 
 /* ── Page ────────────────────────────────────────────────── */
 export default function AchievementsPage() {
   const [educators, setEducators] = useState([]);
   const [students, setStudents] = useState([]);
   const [universities, setUniversities] = useState([]);
+  const [honorsList, setHonorsList] = useState([]);
+  const [honorsLoading, setHonorsLoading] = useState(true);
+  const [honorsError, setHonorsError] = useState("");
 
   useEffect(() => {
     api.get("/alumni").then((alumniRes) => {
@@ -135,6 +134,32 @@ export default function AchievementsPage() {
         setEducators(items);
       })
       .catch(() => setEducators([]));
+  }, []);
+
+  useEffect(() => {
+    setHonorsLoading(true);
+    setHonorsError("");
+    api
+      .get("/honorRoll", { params: { sort: "rank" } })
+      .then((res) => {
+        const payload = res.data?.data?.data ?? res.data?.data ?? [];
+        const items = (Array.isArray(payload) ? payload : [payload])
+          .filter(Boolean)
+          .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+          .map((item, index) => ({
+            id: item._id,
+            title: item.studentName || "Honor",
+            sub: item.accomplishment || item.yearSpan || "",
+            yearSpan: item.yearSpan || "",
+            icon: honorIcons[index % honorIcons.length],
+          }));
+        setHonorsList(items);
+      })
+      .catch(() => {
+        setHonorsList([]);
+        setHonorsError("Could not load institutional honors.");
+      })
+      .finally(() => setHonorsLoading(false));
   }, []);
 
   return (
@@ -287,19 +312,32 @@ export default function AchievementsPage() {
         <h2 className="font-serif text-2xl font-bold text-[#1a1a1a] mb-12">
           Institutional Honors
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {honors.map(({ icon: Icon, title, sub }) => (
-            <div key={title} className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full bg-[#FAF8F5] border border-[#e5e1d8] flex items-center justify-center shadow-sm">
-                <Icon size={22} className="text-[#033327]" />
+        {honorsLoading ? (
+          <p className="text-sm text-gray-500">Loading honors…</p>
+        ) : honorsError ? (
+          <p className="text-sm text-red-600">{honorsError}</p>
+        ) : honorsList.length === 0 ? (
+          <p className="text-sm text-gray-500">No institutional honors have been published yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {honorsList.map(({ id, icon: Icon, title, sub, yearSpan }) => (
+              <div key={id} className="flex flex-col items-center gap-3">
+                <div className="w-16 h-16 rounded-full bg-[#FAF8F5] border border-[#e5e1d8] flex items-center justify-center shadow-sm">
+                  <Icon size={22} className="text-[#033327]" />
+                </div>
+                <p className="text-sm font-bold text-[#1a1a1a] leading-snug">
+                  {title}
+                </p>
+                {sub && <p className="text-[10px] text-gray-400">{sub}</p>}
+                {yearSpan && yearSpan !== sub && (
+                  <p className="text-[10px] text-[#b5985b] font-semibold tracking-wide">
+                    {yearSpan}
+                  </p>
+                )}
               </div>
-              <p className="text-sm font-bold text-[#1a1a1a] leading-snug">
-                {title}
-              </p>
-              <p className="text-[10px] text-gray-400">{sub}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ── Scholastic Competitions ────────────────────────── */}

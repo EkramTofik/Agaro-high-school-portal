@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import api from '../api/axios'
 import AdminConfirmModal from '../components/AdminConfirmModal'
+import AdminFilters, { matchesSearch, matchesFilter } from '../components/AdminFilters'
 
 /* ── Inline SVG icons ─── */
 const icons = {
@@ -32,6 +33,9 @@ export default function AdminMessagesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [selectedId, setSelectedId] = useState(null)
   const loadMessages = () => {
     setLoading(true); setError('')
     return api.get('/contact')
@@ -43,7 +47,26 @@ export default function AdminMessagesPage() {
       .finally(() => setLoading(false))
   }
   useEffect(() => { loadMessages() }, [])
-  const selectedMessage = messages[0]
+
+  const filteredMessages = useMemo(() => {
+    return messages.filter((msg) => {
+      if (!matchesSearch(msg, search, ['fullName', 'email', 'subject', 'message'])) return false
+      if (!matchesFilter(msg, 'status', statusFilter)) return false
+      return true
+    })
+  }, [messages, search, statusFilter])
+
+  useEffect(() => {
+    if (!filteredMessages.length) {
+      setSelectedId(null)
+      return
+    }
+    if (!selectedId || !filteredMessages.some((m) => m._id === selectedId)) {
+      setSelectedId(filteredMessages[0]._id)
+    }
+  }, [filteredMessages, selectedId])
+
+  const selectedMessage = filteredMessages.find((m) => m._id === selectedId) || filteredMessages[0]
   const updateStatus = async (status) => {
     if (!selectedMessage?._id) return
     try { await api.patch(`/contact/${selectedMessage._id}`, { status }); await loadMessages() } catch (e) { setError(e.response?.data?.message || 'Could not update message.') }
@@ -53,40 +76,22 @@ export default function AdminMessagesPage() {
     setConfirmDelete({ message: 'Delete this message?', action: async () => { try { await api.delete(`/contact/${selectedMessage._id}`); await loadMessages() } catch (e) { setError(e.response?.data?.message || 'Could not delete message.') } } })
   }
 
+  const formatTime = (value) => {
+    if (!value) return '—'
+    try {
+      return new Date(value).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    } catch {
+      return '—'
+    }
+  }
+  const initials = (name = '') => name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || '?'
+
   return (
     <div className="bg-[#FAF8F5] text-[#1a1a1a]">
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
 {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5]">
-
-        {/* Top Header */}
-        <header className="shrink-0 flex items-center px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
-          <h2 className="font-serif text-[18px] font-bold text-[#033327] leading-tight mr-8">Communication Archive</h2>
-          
-          <div className="flex items-center gap-6 text-[11px] font-bold text-gray-500">
-            <button className="text-[#033327] border-b-2 border-[#033327] pb-1">Messages</button>
-            <button className="hover:text-[#033327] pb-1">Inquiries</button>
-            <button className="hover:text-[#033327] pb-1">Feedback</button>
-          </div>
-          
-          <div className="flex-1 px-8"></div>
-          
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-2 bg-[#f4f1ec] border border-[#e5e1d8] rounded-full px-3 py-1.5 w-64 mr-2">
-              <span className="text-gray-400">{icons.search}</span>
-              <input placeholder="Search archive records..." className="flex-1 bg-transparent text-[11px] font-medium outline-none text-[#1a1a1a] placeholder:text-gray-400" />
-            </div>
-            <button className="text-gray-600 hover:text-[#033327] relative">
-              {icons.bell}
-              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-[#033327] rounded-full"></span>
-            </button>
-            <button className="text-gray-600 hover:text-[#033327]">{icons.history}</button>
-            <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border border-[#e5e1d8] ml-2">
-              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </header>
 
         {/* Scrollable Content */}
         <div className="px-10 py-8">
@@ -105,60 +110,69 @@ export default function AdminMessagesPage() {
             )}
             <div className="flex items-center gap-3">
               <button className="px-4 py-2 rounded-md bg-white border border-[#e5e1d8] text-[11px] font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                {icons.filter} Filter
-              </button>
-              <button className="px-4 py-2 rounded-md bg-white border border-[#e5e1d8] text-[11px] font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                 {icons.download} Export Log
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-5 mb-8 h-[500px]">
+          <AdminFilters
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search full name, email, subject…"
+            filters={[
+              {
+                key: 'status',
+                label: 'Status',
+                value: statusFilter,
+                onChange: setStatusFilter,
+                options: [
+                  { value: '', label: 'All statuses' },
+                  'new',
+                  'read',
+                  'replied',
+                  'closed',
+                ],
+              },
+            ]}
+            resultCount={filteredMessages.length}
+            totalCount={messages.length}
+          />
+
+          <div className="grid grid-cols-12 gap-5 mb-8 mt-5 h-[500px]">
             
             {/* Left Column (Inbox) */}
             <div className="col-span-3 bg-[#fcfbfa] border border-[#e5e1d8] rounded-xl flex flex-col overflow-hidden">
               <div className="px-4 py-3 border-b border-[#e5e1d8] flex items-center justify-between bg-white">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">INBOX (12)</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">INBOX ({filteredMessages.length})</span>
                 <span className="text-gray-400 rotate-90 scale-x-150">&lt;&gt;</span>
               </div>
               
-              <div className="divide-y divide-[#e5e1d8]">
-                {/* Active Item */}
-                <div className="p-4 bg-white border-l-[3px] border-[#033327] cursor-pointer">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-[13px] font-bold text-[#033327] truncate pr-2">Eleanor H. Sterlin...</p>
-                    <span className="text-[9px] text-gray-500 shrink-0">10:45 AM</span>
-                  </div>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">HISTORICAL RECORDS ACCESS</p>
-                  <span className="px-2 py-0.5 rounded bg-[#fff0b3] text-[#b38600] text-[8px] font-bold uppercase tracking-wider">NEW</span>
-                </div>
-                
-                <div className="p-4 bg-[#fcfbfa] hover:bg-white cursor-pointer transition-colors">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-[13px] font-bold text-gray-700 truncate pr-2">Julian Marcus</p>
-                    <span className="text-[9px] text-gray-500 shrink-0">Yesterday</span>
-                  </div>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">SCHOLARSHIP FUND INQUIRY</p>
-                  <span className="px-2 py-0.5 rounded bg-[#e5e1d8] text-gray-600 text-[8px] font-bold uppercase tracking-wider">READ</span>
-                </div>
-                
-                <div className="p-4 bg-[#fcfbfa] hover:bg-white cursor-pointer transition-colors">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-[13px] font-bold text-gray-700 truncate pr-2">Dr. Sarah Thorne</p>
-                    <span className="text-[9px] text-gray-500 shrink-0">Oct 24</span>
-                  </div>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">GUEST LECTURE PROPOSAL</p>
-                  <span className="px-2 py-0.5 rounded bg-[#c6ebd4] text-[#033327] text-[8px] font-bold uppercase tracking-wider">REPLIED</span>
-                </div>
-                
-                <div className="p-4 bg-[#fcfbfa] hover:bg-white cursor-pointer transition-colors">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-[13px] font-bold text-gray-700 truncate pr-2">B. Whittaker</p>
-                    <span className="text-[9px] text-gray-500 shrink-0">Oct 22</span>
-                  </div>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">ADMISSIONS QUESTION</p>
-                  <span className="px-2 py-0.5 rounded bg-[#c6ebd4] text-[#033327] text-[8px] font-bold uppercase tracking-wider">REPLIED</span>
-                </div>
+              <div className="divide-y divide-[#e5e1d8] overflow-y-auto">
+                {filteredMessages.length === 0 ? (
+                  <p className="p-4 text-[11px] text-gray-500">{loading ? 'Loading…' : 'No messages match your filters.'}</p>
+                ) : filteredMessages.map((msg) => {
+                  const isActive = selectedMessage?._id === msg._id
+                  const status = String(msg.status || 'new').toLowerCase()
+                  const statusClass =
+                    status === 'new' ? 'bg-[#fff0b3] text-[#b38600]' :
+                    status === 'read' ? 'bg-[#e5e1d8] text-gray-600' :
+                    status === 'closed' ? 'bg-[#e5e1d8] text-gray-500' :
+                    'bg-[#c6ebd4] text-[#033327]'
+                  return (
+                    <div
+                      key={msg._id}
+                      onClick={() => setSelectedId(msg._id)}
+                      className={`p-4 cursor-pointer transition-colors ${isActive ? 'bg-white border-l-[3px] border-[#033327]' : 'bg-[#fcfbfa] hover:bg-white'}`}
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <p className={`text-[13px] font-bold truncate pr-2 ${isActive ? 'text-[#033327]' : 'text-gray-700'}`}>{msg.fullName || 'Unknown'}</p>
+                        <span className="text-[9px] text-gray-500 shrink-0">{formatTime(msg.createdAt)}</span>
+                      </div>
+                      <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 truncate">{msg.subject || 'No subject'}</p>
+                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${statusClass}`}>{status}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 
@@ -167,11 +181,11 @@ export default function AdminMessagesPage() {
               <div className="px-8 py-6 border-b border-[#e5e1d8] flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-[#c6ebd4] text-[#033327] flex items-center justify-center font-bold text-[14px]">
-                    EH
+                    {initials(selectedMessage?.fullName)}
                   </div>
                   <div>
-                    <h2 className="font-serif text-[17px] font-bold text-[#1a1a1a]">Eleanor H. Sterling</h2>
-                    <p className="text-[12px] text-gray-500">eleanor.sterling@heritage.org</p>
+                    <h2 className="font-serif text-[17px] font-bold text-[#1a1a1a]">{selectedMessage?.fullName || 'No message selected'}</h2>
+                    <p className="text-[12px] text-gray-500">{selectedMessage?.email || '—'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-gray-400">
@@ -183,13 +197,11 @@ export default function AdminMessagesPage() {
               <div className="flex-1 p-8 overflow-y-auto">
                 <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">SUBJECT HEADER</p>
                 <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-6 pb-6 border-b border-[#e5e1d8]">
-                  Inquiry: Historical Records Access (Class of 1964)
+                  {selectedMessage?.subject || 'No subject'}
                 </h3>
                 
-                <div className="text-[13px] text-gray-700 leading-relaxed space-y-4">
-                  <p>Dear Administrator,</p>
-                  <p>I am writing to formally request access to the graduation records and school yearbooks specifically for the Class of 1964. My family is currently conducting extensive genealogical research on my late grandfather, Arthur P. Sterling, who we believe was a valedictorian at Agaro High during that year.</p>
-                  <p>We are particularly interested in any high-resolution scans of athletic achievement records or faculty commendations that might still be held within your historical archives. Please let me know the standard procedure for requesting these digital copies or if a physical visit to the Archive Hall is</p>
+                <div className="text-[13px] text-gray-700 leading-relaxed space-y-4 whitespace-pre-wrap">
+                  {selectedMessage?.message || 'Select a message from the inbox to view its contents.'}
                 </div>
               </div>
               

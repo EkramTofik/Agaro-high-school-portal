@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import api from "../api/axios";
 import AdminFormModal from "../components/AdminFormModal";
 import AdminConfirmModal from "../components/AdminConfirmModal";
+import AdminFilters, { matchesSearch, matchesFilter } from "../components/AdminFilters";
 
 /* ── Inline SVG icons ─── */
 const icons = {
@@ -312,6 +313,9 @@ export default function AdminNewsPage() {
   const [editingNews, setEditingNews] = useState(null);
   const [savingNews, setSavingNews] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const loadNews = () => {
     setNewsLoading(true);
@@ -377,13 +381,23 @@ export default function AdminNewsPage() {
     finally { setSavingNews(false); }
   };
 
+  const filteredNews = useMemo(() => {
+    return news.filter((item) => {
+      if (!matchesSearch(item, search, ["title", "body", "summary", "category"])) return false;
+      if (!matchesFilter(item, "category", categoryFilter)) return false;
+      if (!matchesFilter(item, "status", statusFilter)) return false;
+      return true;
+    });
+  }, [news, search, categoryFilter, statusFilter]);
+
   return (
     <div className="bg-[#FAF8F5] text-[#1a1a1a]">
       {editingNews && <AdminFormModal title="Edit news update" initialValues={editingNews} onClose={() => setEditingNews(null)} onSubmit={saveNews} submitting={savingNews} fields={[
         { name: "title", label: "Headline", required: true },
         { name: "category", label: "Category", type: "select", options: ["Academic", "Sports", "Cultural", "Meeting", "Event", "Other"] },
         { name: "body", label: "Announcement content", required: true, type: "textarea" },
-        { name: "summary", label: "Summary", type: "textarea" }, { name: "imageUrl", label: "Image URL" },
+        { name: "summary", label: "Summary", type: "textarea" },
+        { name: "imageUrl", label: "Image URL", type: "url" },
         { name: "status", label: "Status", type: "select", options: ["draft", "published", "archived"] },
         { name: "isUrgent", label: "Urgent announcement", type: "checkbox", defaultValue: false },
         { name: "publishedAt", label: "Published at", type: "datetime-local", emptyValue: null }
@@ -392,42 +406,6 @@ export default function AdminNewsPage() {
 
 {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5]">
-        {/* Top Header */}
-        <header className="shrink-0 flex items-center px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
-          <h2 className="font-serif text-[15px] font-bold text-[#033327] leading-tight flex items-center gap-2">
-            Admin Console
-            <span className="text-gray-300 mx-1">|</span>
-            <span className="text-gray-500 text-[11px] font-medium font-sans">
-              News Editor
-            </span>
-          </h2>
-
-          <div className="flex-1 px-8"></div>
-
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-2 bg-[#f4f1ec] border border-[#e5e1d8] rounded-full px-3 py-1.5 w-64 mr-2">
-              <span className="text-gray-400">{icons.search}</span>
-              <input
-                placeholder="Search Archives..."
-                className="flex-1 bg-transparent text-[11px] font-medium outline-none text-[#1a1a1a] placeholder:text-gray-400"
-              />
-            </div>
-            <button className="text-gray-600 hover:text-[#033327] relative">
-              {icons.bell}
-            </button>
-            <button className="text-gray-600 hover:text-[#033327]">
-              {icons.history}
-            </button>
-            <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border border-[#e5e1d8] ml-2">
-              <img
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=100"
-                alt="Avatar"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </header>
-
         {/* Scrollable Content */}
         <div className="px-12 py-12 pb-24">
           <div className="max-w-3xl mx-auto">
@@ -441,7 +419,7 @@ export default function AdminNewsPage() {
                 Draft a new record for the Agaro High School Living Archive
               </p>
               <p className={newsError ? "mt-3 text-xs text-red-500" : "mt-3 text-xs text-gray-500"}>
-                {newsLoading ? "Loading news records…" : newsError || `${news.length} news records`}
+                {newsLoading ? "Loading news records…" : newsError || `${filteredNews.length} of ${news.length} news records`}
               </p>
               <div className="w-16 h-[2px] bg-[#b5985b]/30 mx-auto mt-6"></div>
             </div>
@@ -480,7 +458,43 @@ export default function AdminNewsPage() {
                     </svg>
                   </div>
                   <div className="mt-8 space-y-2">
-                    {news.map((item) => (
+                    <AdminFilters
+                      search={search}
+                      onSearchChange={setSearch}
+                      searchPlaceholder="Search news…"
+                      filters={[
+                        {
+                          key: "category",
+                          label: "Category",
+                          value: categoryFilter,
+                          onChange: setCategoryFilter,
+                          options: [
+                            { value: "", label: "All categories" },
+                            "Academic",
+                            "Sports",
+                            "Cultural",
+                            "Meeting",
+                            "Event",
+                            "Other",
+                          ],
+                        },
+                        {
+                          key: "status",
+                          label: "Status",
+                          value: statusFilter,
+                          onChange: setStatusFilter,
+                          options: [
+                            { value: "", label: "All statuses" },
+                            "draft",
+                            "published",
+                            "archived",
+                          ],
+                        },
+                      ]}
+                      resultCount={filteredNews.length}
+                      totalCount={news.length}
+                    />
+                    {filteredNews.map((item) => (
                       <div key={item._id} className="flex items-center justify-between bg-white border border-[#e5e1d8] rounded-md px-4 py-3">
                         <span className="text-[12px] font-bold">{item.title}</span>
                         <span className="flex gap-3 text-[10px]"><button onClick={() => handleEditNews(item)} className="text-[#033327]">Edit</button><button onClick={() => handleDeleteNews(item)} className="text-red-600">Delete</button></span>

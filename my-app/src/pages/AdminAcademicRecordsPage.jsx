@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import api from '../api/axios'
 import AdminFormModal from '../components/AdminFormModal'
 import AdminConfirmModal from '../components/AdminConfirmModal'
+import AdminFilters, { matchesSearch, matchesFilter } from '../components/AdminFilters'
 
 /* â”€â”€ Inline SVG icons â”€â”€â”€ */
 const icons = {
@@ -35,6 +36,10 @@ export default function AdminAcademicRecordsPage() {
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [departments, setDepartments] = useState([])
+  const [academicYears, setAcademicYears] = useState([])
+  const [search, setSearch] = useState('')
+  const [recordTypeFilter, setRecordTypeFilter] = useState('')
+  const [visibilityFilter, setVisibilityFilter] = useState('')
   const loadRecords = () => {
     setLoading(true); setError('')
     return api.get('/academicRecord')
@@ -51,6 +56,10 @@ export default function AdminAcademicRecordsPage() {
       const payload = res.data?.data?.data ?? res.data?.data ?? []
       setDepartments((Array.isArray(payload) ? payload : [payload]).filter(Boolean))
     }).catch(() => setError('Could not load departments.'))
+    api.get('/academicYear').then((res) => {
+      const payload = res.data?.data?.data ?? res.data?.data ?? []
+      setAcademicYears((Array.isArray(payload) ? payload : [payload]).filter(Boolean))
+    }).catch(() => {})
   }, [])
   const addRecord = () => setFormRecord({})
   const editRecord = (record) => setFormRecord(record)
@@ -64,13 +73,25 @@ export default function AdminAcademicRecordsPage() {
     setConfirmDelete({ message: `Delete ${record.title}?`, action: async () => { try { await api.delete(`/academicRecord/${record._id}`); await loadRecords() } catch (e) { setError(e.response?.data?.message || 'Could not delete academic record.') } } })
   }
 
+  const filteredRecords = useMemo(() => {
+    return records.filter((record) => {
+      if (!matchesSearch(record, search, ['title'])) return false
+      if (!matchesFilter(record, 'recordType', recordTypeFilter)) return false
+      if (!matchesFilter(record, 'visibility', visibilityFilter)) return false
+      return true
+    })
+  }, [records, search, recordTypeFilter, visibilityFilter])
+
   return (
     <div className="bg-[#FAF8F5] text-[#1a1a1a]">
       {formRecord !== null && <AdminFormModal title={formRecord._id ? 'Edit academic record' : 'Add academic record'} initialValues={{ recordType: 'archive', visibility: 'public', fileType: 'PDF', ...formRecord }} onClose={() => setFormRecord(null)} onSubmit={saveRecord} submitting={saving} fields={[
-        { name: 'title', label: 'Record title', required: true }, { name: 'fileUrl', label: 'File URL', required: true },
+        { name: 'title', label: 'Record title', required: true },
+        { name: 'fileUrl', label: 'File URL', required: true, type: 'url' },
         { name: 'recordType', label: 'Record type', required: true, type: 'select', options: ['exam', 'result', 'study_guide', 'archive', 'report'] },
-        { name: 'department', label: 'Department', type: 'select', emptyValue: null, options: departments.map((department) => ({ value: department._id, label: department.name })) }, { name: 'academicYear', label: 'Academic year ID', emptyValue: null },
-        { name: 'fileType', label: 'File type' }, { name: 'fileSize', label: 'File size (bytes)', type: 'number' },
+        { name: 'department', label: 'Department', type: 'select', emptyValue: null, options: departments.map((department) => ({ value: String(department._id), label: department.name })) },
+        { name: 'academicYear', label: 'Academic year', type: 'select', emptyValue: null, options: academicYears.map((year) => ({ value: String(year._id), label: year.name })) },
+        { name: 'fileType', label: 'File type' },
+        { name: 'fileSize', label: 'File size (bytes)', type: 'number', min: 0, integer: true },
         { name: 'visibility', label: 'Visibility', required: true, type: 'select', options: ['public', 'restricted'] },
         { name: 'publishedAt', label: 'Published at', type: 'datetime-local', emptyValue: null }
       ]} />}
@@ -78,29 +99,6 @@ export default function AdminAcademicRecordsPage() {
 
 {/* â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <main className="bg-[#FAF8F5]">
-
-        {/* Top Header */}
-        <header className="shrink-0 flex items-center justify-between px-10 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
-          <div className="flex items-center gap-2 bg-white border border-[#e5e1d8] rounded-full px-4 py-2 w-80">
-            <span className="text-gray-400">{icons.search}</span>
-            <input placeholder="Search archive records..." className="flex-1 bg-transparent text-[11px] font-medium outline-none text-[#1a1a1a] placeholder:text-gray-400" />
-          </div>
-          <div className="flex items-center gap-6">
-            <button className="text-gray-500 hover:text-[#033327] relative">
-              {icons.bell}
-            </button>
-            <button className="text-gray-500 hover:text-[#033327]">{icons.history}</button>
-            <div className="flex items-center gap-3 pl-6 border-l border-[#e5e1d8]">
-              <div className="text-right">
-                <p className="text-[11px] font-bold text-[#1a1a1a] leading-tight">Admin Faculty</p>
-                <p className="text-[8px] text-gray-500 uppercase tracking-widest mt-0.5">REGISTRAR'S OFFICE</p>
-              </div>
-              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-[#e5e1d8]">
-                <img src={undefined} alt="Avatar" className="w-full h-full object-cover" />
-              </div>
-            </div>
-          </div>
-        </header>
 
         {/* Scrollable Content */}
         <div className="px-12 py-10 pb-20">
@@ -131,7 +129,41 @@ export default function AdminAcademicRecordsPage() {
               </div>
             </div>
             {records.length > 0 && <div className="mb-8 space-y-2">
-              {records.map((record) => <div key={record._id} className="flex items-center justify-between bg-white border border-[#e5e1d8] rounded-md px-4 py-3">
+              <AdminFilters
+                search={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search by title…"
+                filters={[
+                  {
+                    key: 'recordType',
+                    label: 'Record type',
+                    value: recordTypeFilter,
+                    onChange: setRecordTypeFilter,
+                    options: [
+                      { value: '', label: 'All types' },
+                      'exam',
+                      'result',
+                      'study_guide',
+                      'archive',
+                      'report',
+                    ],
+                  },
+                  {
+                    key: 'visibility',
+                    label: 'Visibility',
+                    value: visibilityFilter,
+                    onChange: setVisibilityFilter,
+                    options: [
+                      { value: '', label: 'All visibility' },
+                      'public',
+                      'restricted',
+                    ],
+                  },
+                ]}
+                resultCount={filteredRecords.length}
+                totalCount={records.length}
+              />
+              {filteredRecords.map((record) => <div key={record._id} className="flex items-center justify-between bg-white border border-[#e5e1d8] rounded-md px-4 py-3">
                 <span className="text-[12px] font-bold">{record.title}</span>
                 <span className="flex gap-3 text-[10px]"><button onClick={() => editRecord(record)} className="text-[#033327]">Edit</button><button onClick={() => deleteRecord(record)} className="text-red-600">Delete</button></span>
               </div>)}

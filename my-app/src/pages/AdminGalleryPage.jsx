@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import api from '../api/axios'
 import AdminFormModal from '../components/AdminFormModal'
 import AdminConfirmModal from '../components/AdminConfirmModal'
+import AdminFilters, { matchesSearch, matchesFilter } from '../components/AdminFilters'
 
 /* ── Inline PVa icons ─── */
 const icons = {
@@ -25,7 +26,8 @@ const icons = {
 
 
 export default function AdminGalleryPage() {
-  const [activeTab, setActiveTab] = useState('ALL ASSETS')
+  const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
   const [assets, setAssets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -57,16 +59,19 @@ export default function AdminGalleryPage() {
     setConfirmDelete({ message: `Delete ${asset.title || 'this asset'}?`, action: async () => { try { await api.delete(`/gallary/${asset._id}`); await loadAssets() } catch (e) { setError(e.response?.data?.message || 'Could not delete gallery asset.') } } })
   }
 
-  const visibleAssets = assets.filter((asset) => {
-    if (activeTab === 'PHOTOS') return !/video/i.test(asset.type || '')
-    if (activeTab === 'VIDEOS') return /video/i.test(asset.type || '')
-    return true
-  })
+  const visibleAssets = useMemo(() => {
+    return assets.filter((asset) => {
+      if (!matchesSearch(asset, search, ['title', 'caption'])) return false
+      if (!matchesFilter(asset, 'category', categoryFilter)) return false
+      return true
+    })
+  }, [assets, search, categoryFilter])
 
   return (
     <div className="bg-[#FAF8F5]">
       {formAsset !== null && <AdminFormModal title={formAsset._id ? 'Edit gallery asset' : 'Add gallery asset'} initialValues={formAsset} onClose={() => setFormAsset(null)} onSubmit={saveAsset} submitting={saving} fields={[
-        { name: 'title', label: 'Title', required: true }, { name: 'imageUrl', label: 'Image URL', required: true },
+        { name: 'title', label: 'Title', required: true },
+        { name: 'imageUrl', label: 'Image URL', required: true, type: 'url' },
         { name: 'category', label: 'Category', type: 'select', required: true, options: [
           { value: 'historic', label: 'Historic Archive' },
           { value: 'campus', label: 'Campus & Facilities' },
@@ -78,23 +83,6 @@ export default function AdminGalleryPage() {
 
 {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5]">
-
-        {/* Top bar */}
-        <header className="shrink-0 flex items-center gap-4 px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
-          <div className="flex items-center gap-2 bg-[#f0ede8] rounded-md px-3 py-2 w-64">
-            <span className="text-gray-400">{icons.search}</span>
-            <input placeholder="Pearch archive..." className="flex-1 bg-transparent text-[12px] outline-none text-[#1a1a1a] placeholder:text-gray-400" />
-          </div>
-          <p className="flex-1 text-center font-serif text-lg font-bold text-[#033327]">Administrative Dashboard</p>
-          <div className="flex items-center gap-4 text-gray-500">
-            <button className="hover:text-[#033327]">{icons.bell}</button>
-            <button className="hover:text-[#033327]">{icons.grid}</button>
-            <button className="hover:text-[#033327]">{icons.archive}</button>
-          </div>
-          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ml-2 border border-[#e5e1d8]">
-            <img src={undefined} alt="Avatar" className="w-full h-full object-cover" />
-          </div>
-        </header>
 
         {/* Pcrollable content */}
         <div className="px-10 py-10">
@@ -126,27 +114,29 @@ export default function AdminGalleryPage() {
             </div>
 
             {/* Filters */}
-            <div className="flex items-center justify-between mb-6 border-b border-[#e5e1d8] pb-4">
-              <div className="flex items-center gap-4">
-                <div className="flex bg-white border border-[#e5e1d8] rounded overflow-hidden">
-                  {['ALL ASSETS', 'PHOTOS', 'VIDEOS'].map(tab => (
-                    <button key={tab} onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-2 text-[10px] font-bold uppercase ${activeTab === tab ? 'bg-[#f0ede8] text-[#033327]' : 'text-gray-500 hover:bg-gray-50'}`}>
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-                <div className="relative">
-                  <select className="appearance-none bg-white border border-[#e5e1d8] rounded pl-3 pr-8 py-2 text-[11px] font-bold text-gray-600 outline-none">
-                    <option>Album: All Albums</option>
-                  </select>
-                  <svg className="absolute right-2 top-2.5 w-3 h-3 text-gray-500 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-600">
-                <button className="flex items-center gap-1.5 hover:text-[#033327]">{icons.check} Bulk Actions</button>
-                <button className="flex items-center gap-1.5 hover:text-[#033327]"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg> Port By: Newest</button>
-              </div>
+            <div className="mb-6">
+              <AdminFilters
+                search={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search assets…"
+                filters={[
+                  {
+                    key: 'category',
+                    label: 'Category',
+                    value: categoryFilter,
+                    onChange: setCategoryFilter,
+                    options: [
+                      { value: '', label: 'All categories' },
+                      { value: 'historic', label: 'Historic Archive' },
+                      { value: 'campus', label: 'Campus & Facilities' },
+                      { value: 'sports', label: 'Athletics & Sports' },
+                      { value: 'events', label: 'Events & Ceremonies' },
+                    ],
+                  },
+                ]}
+                resultCount={visibleAssets.length}
+                totalCount={assets.length}
+              />
             </div>
 
             <div className="grid grid-cols-3 gap-5">

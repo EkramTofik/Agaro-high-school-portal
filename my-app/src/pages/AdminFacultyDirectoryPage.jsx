@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import api from '../api/axios'
 import AdminFormModal from '../components/AdminFormModal'
 import AdminConfirmModal from '../components/AdminConfirmModal'
+import AdminFilters, { matchesSearch } from '../components/AdminFilters'
 
 /* ── Inline SVG icons ─── */
 const icons = {
@@ -27,6 +28,8 @@ const icons = {
 export default function AdminFacultyDirectoryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('All Faculty')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [roleFilter, setRoleFilter] = useState('')
   const [faculty, setFaculty] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -111,10 +114,10 @@ export default function AdminFacultyDirectoryPage() {
       },
       { name: 'qualifications', label: 'Qualifications' },
       { name: 'leadershipCredentials', label: 'Leadership credentials' },
-      { name: 'yearsAtSchool', label: 'Years at school', type: 'number', min: 0 },
-      { name: 'publishedPapers', label: 'Published papers', type: 'number', min: 0 },
+      { name: 'yearsAtSchool', label: 'Years at school', type: 'number', min: 0, integer: true },
+      { name: 'publishedPapers', label: 'Published papers', type: 'number', min: 0, integer: true },
       { name: 'bio', label: 'Biography', type: 'textarea' },
-      { name: 'imageUrl', label: 'Image URL' },
+      { name: 'imageUrl', label: 'Image URL', type: 'url' },
       { name: 'isActive', label: 'Active', type: 'checkbox', defaultValue: true },
       { name: 'isLeadership', label: 'Leadership member', type: 'checkbox', defaultValue: false },
       { name: 'isPresident', label: 'President', type: 'checkbox', defaultValue: false },
@@ -122,7 +125,7 @@ export default function AdminFacultyDirectoryPage() {
       { name: 'isDistinguished', label: 'Distinguished faculty', type: 'checkbox', defaultValue: false },
       { name: 'isAdministrative', label: 'Administrative staff', type: 'checkbox', defaultValue: false },
       { name: 'office', label: 'Office' },
-      { name: 'sortOrder', label: 'Sort order', type: 'number', defaultValue: 0 },
+      { name: 'sortOrder', label: 'Sort order', type: 'number', defaultValue: 0, integer: true },
     ],
     [departments],
   )
@@ -134,12 +137,17 @@ export default function AdminFacultyDirectoryPage() {
 
   const filteredFaculty = useMemo(() => {
     return faculty.filter(person => {
-      const matchesSearch = person.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            person.role.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesDept = departmentFilter === 'All Faculty' || person.dept === departmentFilter
-      return matchesSearch && matchesDept
+      const raw = person.raw || person
+      if (!matchesSearch(person, searchQuery, ['name', 'role', 'dept'])) return false
+      if (departmentFilter !== 'All Faculty' && person.dept !== departmentFilter) return false
+      if (statusFilter === 'true' && raw.isActive === false) return false
+      if (statusFilter === 'false' && raw.isActive !== false) return false
+      if (roleFilter === 'leadership' && !raw.isLeadership) return false
+      if (roleFilter === 'distinguished' && !raw.isDistinguished) return false
+      if (roleFilter === 'administrative' && !raw.isAdministrative) return false
+      return true
     })
-  }, [faculty, searchQuery, departmentFilter])
+  }, [faculty, searchQuery, departmentFilter, statusFilter, roleFilter])
 
   return (
     <div className="bg-[#FAF8F5] text-[#1a1a1a]">
@@ -170,45 +178,6 @@ export default function AdminFacultyDirectoryPage() {
 
 {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5]">
-
-        {/* Top Header */}
-        <header className="shrink-0 flex items-center px-8 py-4 bg-[#FAF8F5] border-b border-[#e5e1d8]">
-          <div className="flex items-center gap-6">
-            <h2 className="font-serif text-[19px] font-bold text-[#033327] leading-tight w-24">Admin<br/>Console</h2>
-            <div className="flex items-center gap-5 border-l border-[#e5e1d8] pl-6 text-[11px] font-bold text-gray-700">
-              <button className="text-[#033327]">Directories</button>
-              <button className="hover:text-[#033327]">Registrar</button>
-              <button className="hover:text-[#033327]">Archives</button>
-            </div>
-          </div>
-          <div className="flex-1 px-8">
-            <div className="flex items-center gap-2 bg-white border border-[#e5e1d8] rounded-md px-3 py-2 w-full max-w-sm focus-within:border-[#b5985b] transition-colors shadow-sm">
-              <span className="text-gray-400">{icons.search}</span>
-              <input 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Faculty Records..." 
-                className="flex-1 bg-transparent text-[11px] font-medium outline-none text-[#1a1a1a] placeholder:text-gray-400" 
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-5">
-            <button className="text-gray-600 hover:text-[#033327] relative">
-              {icons.bell}
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#b5985b] rounded-full"></span>
-            </button>
-            <button className="text-gray-600 hover:text-[#033327]">{icons.history}</button>
-            <div className="flex items-center gap-3 pl-5 border-l border-[#e5e1d8]">
-              <div className="text-right">
-                <p className="text-[11px] font-bold text-[#1a1a1a] leading-tight">A. Sterling</p>
-                <p className="text-[8px] text-gray-500 uppercase tracking-widest mt-0.5">HEAD REGISTRAR</p>
-              </div>
-              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100" alt="Avatar" className="w-full h-full object-cover" />
-              </div>
-            </div>
-          </div>
-        </header>
 
         {/* Scrollable Content */}
         <div className="px-12 py-10 pb-20">
@@ -261,6 +230,39 @@ export default function AdminFacultyDirectoryPage() {
                 </div>
               </div>
             </div>
+
+            <AdminFilters
+              search={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder="Search Faculty Records..."
+              filters={[
+                {
+                  key: 'isActive',
+                  label: 'Status',
+                  value: statusFilter,
+                  onChange: setStatusFilter,
+                  options: [
+                    { value: '', label: 'All' },
+                    { value: 'true', label: 'Active' },
+                    { value: 'false', label: 'Inactive' },
+                  ],
+                },
+                {
+                  key: 'role',
+                  label: 'Role',
+                  value: roleFilter,
+                  onChange: setRoleFilter,
+                  options: [
+                    { value: '', label: 'All' },
+                    { value: 'leadership', label: 'Leadership' },
+                    { value: 'distinguished', label: 'Distinguished' },
+                    { value: 'administrative', label: 'Administrative' },
+                  ],
+                },
+              ]}
+              resultCount={filteredFaculty.length}
+              totalCount={faculty.length}
+            />
 
             {/* Table */}
             <div className="border border-[#e5e1d8] rounded-xl bg-white overflow-hidden shadow-sm">

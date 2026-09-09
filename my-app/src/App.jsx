@@ -78,7 +78,7 @@ function App() {
         { path: "/student-life", element: <StudentLifePage />, loader: createPageLoader(["/club", "/team", "/event", "/gallary", "/studentVoice"]) },
         { path: "/news", element: <NewsPage />, loader: createPageLoader(["/news"]) },
         { path: "/news/:slug", element: <NewsDetailPage />, loader: newsDetailLoader },
-        { path: "/academic-results", element: <AchievementsPage />, loader: createPageLoader(["/academicRecord", "/staff"]) },
+        { path: "/academic-results", element: <AchievementsPage />, loader: createPageLoader(["/academicRecord", "/staff", "/honorRoll", "/alumni"]) },
         { path: "/resources", element: <ResourceHubPage />, loader: createPageLoader(["/resource"]) },
         { path: "/gallery", element: <GalleryPage />, loader: createPageLoader(["/gallary"]) },
         { path: "/alumni", element: <AlumniPage />, loader: createPageLoader(["/alumni"]) },

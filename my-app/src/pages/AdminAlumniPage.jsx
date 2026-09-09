@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import api from '../api/axios'
 import AdminFormModal from '../components/AdminFormModal'
 import AdminConfirmModal from '../components/AdminConfirmModal'
+import AdminFilters, { matchesSearch } from '../components/AdminFilters'
 
 /* ── Shared admin sidebar icons (inline SVG) ─── */
 const icons = {
@@ -25,7 +26,9 @@ const icons = {
 
 
 export default function AdminAlumniPage() {
-  const [category, setCategory] = useState('All')
+  const [category, setCategory] = useState('')
+  const [featured, setFeatured] = useState('')
+  const [search, setSearch] = useState('')
   const [sort, setSort] = useState('Year')
   const [alumni, setAlumni] = useState([])
   const [loading, setLoading] = useState(true)
@@ -41,6 +44,7 @@ export default function AdminAlumniPage() {
         id: item._id, raw: item, name: item.fullName || 'Unnamed alumnus', field: item.profession || 'General',
         year: item.graduationYear || '—', tag: item.graduationYear ? `CLASS OF ${item.graduationYear}` : 'ALUMNI',
         desc: item.bio || item.company || 'No biography provided.', img: item.imageUrl || '',
+        isFeatured: Boolean(item.isFeatured),
       })))
     }).catch(() => setError('Could not load alumni records.')).finally(() => setLoading(false))
   }
@@ -59,44 +63,34 @@ export default function AdminAlumniPage() {
   }
 
   const filteredAlumni = useMemo(() => {
-    const list = category === 'All' ? alumni : alumni.filter((a) => a.field === category)
+    const list = alumni.filter((a) => {
+      if (!matchesSearch(a, search, ['name', 'field', 'desc', 'year'])) return false
+      if (category && a.field !== category) return false
+      if (featured === 'true' && !a.isFeatured) return false
+      if (featured === 'false' && a.isFeatured) return false
+      return true
+    })
     return [...list].sort((a, b) => sort === 'Name' ? a.name.localeCompare(b.name) : String(b.year).localeCompare(String(a.year)))
-  }, [alumni, category, sort])
+  }, [alumni, category, featured, search, sort])
 
   return (
     <div className="bg-[#f4f1ec]">
       {formAlumnus !== null && <AdminFormModal title={formAlumnus._id ? 'Edit alumni profile' : 'Add alumni profile'} initialValues={formAlumnus} onClose={() => setFormAlumnus(null)} onSubmit={saveAlumnus} submitting={saving} fields={[
-        { name: 'fullName', label: 'Full name', required: true }, { name: 'graduationYear', label: 'Graduation year', type: 'number' },
-        { name: 'profession', label: 'Profession', type: 'select', options: [
+        { name: 'fullName', label: 'Full name', required: true },
+        { name: 'graduationYear', label: 'Graduation year', type: 'number', integer: true, min: 1900, max: 2100 },
+        { name: 'profession', label: 'Profession', type: 'select', emptyValue: null, options: [
           { value: 'Science & Medicine', label: 'Science & Medicine' },
           { value: 'Public Affairs', label: 'Public Affairs' },
           { value: 'Technology & Business', label: 'Technology & Business' },
           { value: 'Fine Arts', label: 'Fine Arts' },
         ] }, { name: 'company', label: 'Company' }, { name: 'location', label: 'Location' },
-        { name: 'imageUrl', label: 'Image URL' }, { name: 'bio', label: 'Biography', type: 'textarea' },
+        { name: 'imageUrl', label: 'Image URL', type: 'url' }, { name: 'bio', label: 'Biography', type: 'textarea' },
         { name: 'isFeatured', label: 'Featured alumnus', type: 'checkbox', defaultValue: false }
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
 {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#f4f1ec]">
-
-        {/* Top bar */}
-        <header className="shrink-0 flex items-center gap-4 px-8 py-3 bg-[#f4f1ec] border-b border-[#e5e1d8]">
-          <div className="flex items-center gap-2 bg-white border border-[#e5e1d8] rounded-lg px-3 py-2 w-56">
-            <span className="text-gray-300">{icons.search}</span>
-            <input placeholder="Search archive..." className="flex-1 bg-transparent text-[12px] outline-none text-[#1a1a1a] placeholder:text-gray-300" />
-          </div>
-          <p className="flex-1 text-center font-serif text-sm font-bold text-[#1a1a1a]">Administrative Dashboard</p>
-          <div className="flex items-center gap-3 text-gray-400">
-            <button className="hover:text-[#033327]">{icons.bell}</button>
-            <button className="hover:text-[#033327]">{icons.grid}</button>
-            <button className="hover:text-[#033327]">{icons.archive}</button>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-[#033327] flex items-center justify-center shrink-0">
-            <span className="text-[10px] font-bold text-[#FFDEA4]">AT</span>
-          </div>
-        </header>
 
         {/* Scrollable content */}
         <div className="px-10 py-10">
@@ -111,20 +105,55 @@ export default function AdminAlumniPage() {
           </div>
 
           {/* Filter bar */}
-          <div className="flex items-center justify-between mb-7">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setCategory(category === 'All' ? 'Field' : 'All')}
-                className="flex items-center gap-2 text-[11px] font-semibold text-[#1a1a1a] border border-[#e5e1d8] bg-white rounded-lg px-3 py-2 hover:border-[#033327]/30 transition-colors">
-                {icons.filter} Category: {category}
-              </button>
-              <button onClick={() => setSort(sort === 'Year' ? 'Name' : 'Year')}
-                className="flex items-center gap-2 text-[11px] font-semibold text-[#1a1a1a] border border-[#e5e1d8] bg-white rounded-lg px-3 py-2 hover:border-[#033327]/30 transition-colors">
-                {icons.filter} Sort: {sort}
+          <div className="mb-7">
+            <AdminFilters
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search alumni…"
+              filters={[
+                {
+                  key: 'profession',
+                  label: 'Profession',
+                  value: category,
+                  onChange: setCategory,
+                  options: [
+                    { value: '', label: 'All professions' },
+                    'Science & Medicine',
+                    'Public Affairs',
+                    'Technology & Business',
+                    'Fine Arts',
+                  ],
+                },
+                {
+                  key: 'isFeatured',
+                  label: 'Featured',
+                  value: featured,
+                  onChange: setFeatured,
+                  options: [
+                    { value: '', label: 'All' },
+                    { value: 'true', label: 'Featured' },
+                    { value: 'false', label: 'Not featured' },
+                  ],
+                },
+                {
+                  key: 'sort',
+                  label: 'Sort by',
+                  value: sort,
+                  onChange: setSort,
+                  options: [
+                    { value: 'Year', label: 'Year' },
+                    { value: 'Name', label: 'Name' },
+                  ],
+                },
+              ]}
+              resultCount={filteredAlumni.length}
+              totalCount={alumni.length}
+            />
+            <div className="mt-4 flex justify-end">
+              <button onClick={addAlumnus} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#033327] text-[11px] font-bold text-white uppercase tracking-wider hover:bg-[#0d4a3b] transition-colors">
+                {icons.userPlus} Induct New Alumni
               </button>
             </div>
-            <button onClick={addAlumnus} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#033327] text-[11px] font-bold text-white uppercase tracking-wider hover:bg-[#0d4a3b] transition-colors">
-              {icons.userPlus} Induct New Alumni
-            </button>
           </div>
 
           {/* Alumni cards */}

@@ -11,6 +11,7 @@ const quickActions = [
   { label: "Student Life", route: "/admin/student-life" },
   { label: "Gallery", route: "/admin/gallery" },
   { label: "Messages", route: "/admin/messages" },
+  { label: "User Management", route: "/admin/users" },
   { label: "School Settings", route: "/admin/school" },
   { label: "Departments", route: "/admin/departments" },
   { label: "Resources", route: "/admin/resources" },

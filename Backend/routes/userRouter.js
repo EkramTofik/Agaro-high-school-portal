@@ -3,6 +3,7 @@ const authController = require("../controllers/authenticationController");
 const {
   getAllUsers,
   getUser,
+  createUser,
   updateUser,
   deleteUser,
 } = require("../controllers/userController");
@@ -18,7 +19,7 @@ router.get("/me", authController.getMe, getUser);
 router.patch("/updateMe", authController.updateMe);
 router.patch("/updateMyPassword", authController.updateMyPassword);
 
-router.route("/").get(getAllUsers);
+router.route("/").get(getAllUsers).post(createUser);
 router.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
 
 module.exports = router;

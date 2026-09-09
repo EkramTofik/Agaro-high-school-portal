@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import api from '../api/axios'
 import AdminFormModal from '../components/AdminFormModal'
 import AdminConfirmModal from '../components/AdminConfirmModal'
+import AdminFilters, { matchesSearch, matchesFilter } from '../components/AdminFilters'
 
 /* ── Inline SVG icons ─── */
 const icons = {
@@ -35,6 +36,9 @@ export default function AdminStudentLifePage() {
   const [formClub, setFormClub] = useState(null)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [featuredFilter, setFeaturedFilter] = useState('')
   const loadClubs = () => {
     setLoading(true); setError('')
     return api.get('/club')
@@ -66,40 +70,34 @@ export default function AdminStudentLifePage() {
     setConfirmDelete({ message: `Delete ${club.name}?`, action: async () => { try { await api.delete(`/club/${club._id}`); await loadClubs() } catch (e) { setError(e.response?.data?.message || 'Could not delete club.') } } })
   }
 
+  const categoryOptions = useMemo(() => {
+    const cats = [...new Set(clubs.map((c) => c.category || c.role).filter(Boolean))]
+    return [{ value: '', label: 'All categories' }, ...cats.map((c) => ({ value: c, label: c }))]
+  }, [clubs])
+
+  const filteredClubs = useMemo(() => {
+    return clubs.filter((club) => {
+      if (!matchesSearch(club, search, ['name', 'desc', 'lead', 'category', 'role'])) return false
+      if (categoryFilter && (club.category || club.role) !== categoryFilter) return false
+      if (!matchesFilter(club, 'isFeatured', featuredFilter)) return false
+      return true
+    })
+  }, [clubs, search, categoryFilter, featuredFilter])
+
   return (
     <div className="bg-[#FAF8F5]">
       {formClub !== null && <AdminFormModal title={formClub._id ? 'Edit club' : 'Add club'} initialValues={{ category: 'Student Life', ...formClub }} onClose={() => setFormClub(null)} onSubmit={saveClub} submitting={saving} fields={[
-        { name: 'name', label: 'Club name', required: true }, { name: 'category', label: 'Category' }, { name: 'coordinatorName', label: 'Coordinator' },
-        { name: 'imageUrl', label: 'Image URL' }, { name: 'description', label: 'Description', type: 'textarea' },
+        { name: 'name', label: 'Club name', required: true },
+        { name: 'category', label: 'Category' },
+        { name: 'coordinatorName', label: 'Coordinator' },
+        { name: 'imageUrl', label: 'Image URL', type: 'url' },
+        { name: 'description', label: 'Description', type: 'textarea' },
         { name: 'isFeatured', label: 'Featured club', type: 'checkbox', defaultValue: false }
       ]} />}
       {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
 
 {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5] relative">
-
-        {/* Top bar */}
-        <header className="shrink-0 flex items-center gap-4 px-8 py-3 bg-[#FAF8F5] border-b border-[#e5e1d8]">
-          <div className="flex items-center gap-2 bg-[#f0ede8] rounded-md px-3 py-2 w-72">
-            <span className="text-gray-400">{icons.search}</span>
-            <input placeholder="Search archive..." className="flex-1 bg-transparent text-[11px] outline-none text-[#1a1a1a] placeholder:text-gray-400" />
-          </div>
-          <div className="flex-1"></div>
-          <div className="flex items-center gap-4 text-gray-500 mr-4">
-            <button className="hover:text-[#033327]">{icons.bell}</button>
-            <button className="hover:text-[#033327]">{icons.grid}</button>
-            <button className="hover:text-[#033327]">{icons.archive}</button>
-          </div>
-          <div className="flex items-center gap-3 border-l border-[#e5e1d8] pl-5">
-            <div className="text-right">
-              <p className="text-[11px] font-bold text-[#1a1a1a] leading-tight">Admin User</p>
-              <p className="text-[8px] text-gray-400 uppercase tracking-widest mt-0.5">Registrar Office</p>
-            </div>
-            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-[#e5e1d8]">
-              <img src={undefined} alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </header>
 
         {/* Scrollable content */}
         <div className="px-10 py-10 pb-24">
@@ -181,12 +179,39 @@ export default function AdminStudentLifePage() {
                 </div>
 
                 <div className="space-y-4">
-                  {loading || error || clubs.length === 0 ? (
+                  <AdminFilters
+                    search={search}
+                    onSearchChange={setSearch}
+                    searchPlaceholder="Search clubs…"
+                    filters={[
+                      {
+                        key: 'category',
+                        label: 'Category',
+                        value: categoryFilter,
+                        onChange: setCategoryFilter,
+                        options: categoryOptions,
+                      },
+                      {
+                        key: 'isFeatured',
+                        label: 'Featured',
+                        value: featuredFilter,
+                        onChange: setFeaturedFilter,
+                        options: [
+                          { value: '', label: 'All' },
+                          { value: 'true', label: 'Featured' },
+                          { value: 'false', label: 'Not featured' },
+                        ],
+                      },
+                    ]}
+                    resultCount={filteredClubs.length}
+                    totalCount={clubs.length}
+                  />
+                  {loading || error || filteredClubs.length === 0 ? (
                     <p className={error ? "text-sm text-red-500" : "text-sm text-gray-500"}>
                       {loading ? "Loading clubs…" : error || "No clubs found."}
                     </p>
-                  ) : clubs.map((club, i) => (
-                    <div key={i} className="bg-white border border-[#e5e1d8] rounded-lg p-5 hover:shadow-sm transition-shadow">
+                  ) : filteredClubs.map((club, i) => (
+                    <div key={club._id || i} className="bg-white border border-[#e5e1d8] rounded-lg p-5 hover:shadow-sm transition-shadow">
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-serif text-lg font-bold text-[#1a1a1a] mb-1">{club.name}</h3>

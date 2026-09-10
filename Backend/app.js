@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(cors({
-  origin: "https://agaro-high-school-portal-c4vieyz7j-ekru6482-7373s-projects.vercel.app/"
+  origin: "https://agaro-high-school-portal.vercel.app/"
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 }));

@@ -6,9 +6,8 @@ process.on("uncaughtException", (err) => {
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 
-if (process.env.NODE_ENV === 'development') {
-  dotenv.config({ path: "./config.env" });
-}const app = require("./app");
+dotenv.config({ path: "./config.env" });
+const app = require("./app");
 
 if (!process.env.DATABASE || !process.env.DATABASE_PASSWORD) {
   console.error("Missing DATABASE or DATABASE_PASSWORD env var");
@@ -37,4 +36,4 @@ process.on("unhandledRejection", (err) => {
   console.log(`Error Name: ${err.name}`);
   console.log(`Error Message: ${err.message}`);
 });
-module.exports=app;
+module.exports = app;

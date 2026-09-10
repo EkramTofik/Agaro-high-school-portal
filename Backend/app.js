@@ -33,9 +33,24 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(cors({
-  origin: "https://agaro-high-school-portal.vercel.app/",
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, Postman, same-origin server calls)
+    if (!origin) return callback(null, true);
+
+    // Allow any Vercel domain: production + previews
+    if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow localhost for local dev (Vite default 5173, others 3000)
+    if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 }));
 app.use(express.json());
 

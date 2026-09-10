@@ -33,3 +33,4 @@ process.on("unhandledRejection", (err) => {
   console.log(`Error Name: ${err.name}`);
   console.log(`Error Message: ${err.message}`);
 });
+module.exports=app;

@@ -79,7 +79,9 @@ const configs = {
     title: "Resource",
     endpoint: "/resource",
     searchKeys: ["title", "category", "description"],
-    filterDefs: [{ key: "category", label: "Category", allLabel: "All categories" }],
+    filterDefs: [
+      { key: "category", label: "Category", allLabel: "All categories" },
+    ],
     fields: [
       ["title", "Title", true],
       ["category", "Category"],
@@ -108,7 +110,9 @@ const configs = {
     title: "Media File",
     endpoint: "/mediaFile",
     searchKeys: ["fileName", "mimeType", "fileUrl"],
-    filterDefs: [{ key: "mimeType", label: "MIME type", allLabel: "All types" }],
+    filterDefs: [
+      { key: "mimeType", label: "MIME type", allLabel: "All types" },
+    ],
     fields: [
       ["fileName", "File name", true],
       ["fileUrl", "File URL", true, "url"],
@@ -177,7 +181,9 @@ const configs = {
     title: "Honor Roll",
     endpoint: "/honorRoll",
     searchKeys: ["studentName", "yearSpan", "accomplishment"],
-    filterDefs: [{ key: "yearSpan", label: "Year span", allLabel: "All years" }],
+    filterDefs: [
+      { key: "yearSpan", label: "Year span", allLabel: "All years" },
+    ],
     fields: [
       ["rank", "Rank", true, "number"],
       ["studentName", "Student name", true],
@@ -209,8 +215,11 @@ function uniqueOptions(items, key, allLabel = "All") {
       items
         .map((item) => {
           const raw = item?.[key];
-          if (raw && typeof raw === "object") return raw.name || String(raw._id || "");
-          return raw === undefined || raw === null || raw === "" ? null : String(raw);
+          if (raw && typeof raw === "object")
+            return raw.name || String(raw._id || "");
+          return raw === undefined || raw === null || raw === ""
+            ? null
+            : String(raw);
         })
         .filter(Boolean),
     ),
@@ -247,9 +256,6 @@ export default function AdminCollectionPage({ collection }) {
       );
 
   useEffect(() => {
-    setError("");
-    setSearch("");
-    setFilterValues({});
     load();
   }, [collection]);
 
@@ -301,14 +307,18 @@ export default function AdminCollectionPage({ collection }) {
         type,
         ...(defaultValue !== undefined ? { defaultValue } : {}),
         ...(type === "number" &&
-        ["foundingYear", "startYear", "endYear", "rank", "sizeBytes"].includes(name)
+        ["foundingYear", "startYear", "endYear", "rank", "sizeBytes"].includes(
+          name,
+        )
           ? { integer: true, min: name === "rank" ? 1 : 0 }
           : {}),
         ...(collection === "team" && name === "category"
           ? { options: ["Football", "Athletics", "Volleyball"] }
           : {}),
         ...(type === "url" ||
-        ["imageUrl", "fileUrl", "logoUrl", "heroImageUrl", "website"].includes(name)
+        ["imageUrl", "fileUrl", "logoUrl", "heroImageUrl", "website"].includes(
+          name,
+        )
           ? { type: type || "url" }
           : {}),
       }),
@@ -325,7 +335,11 @@ export default function AdminCollectionPage({ collection }) {
           setFilterValues((current) => ({ ...current, [def.key]: value })),
         options:
           def.options ||
-          uniqueOptions(items, def.key, def.allLabel || `All ${def.label.toLowerCase()}s`),
+          uniqueOptions(
+            items,
+            def.key,
+            def.allLabel || `All ${def.label.toLowerCase()}s`,
+          ),
       })),
     [config.filterDefs, filterValues, items],
   );
@@ -502,9 +516,7 @@ export default function AdminCollectionPage({ collection }) {
               await api.delete(`${config.endpoint}/${confirmDelete._id}`);
               await load();
             } catch (e) {
-              setError(
-                e.response?.data?.message || "Could not delete record.",
-              );
+              setError(e.response?.data?.message || "Could not delete record.");
             } finally {
               setConfirmDelete(null);
             }

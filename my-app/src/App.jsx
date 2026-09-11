@@ -1,4 +1,10 @@
-import { createBrowserRouter, Outlet, RouterProvider, useLocation, useNavigation } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+  useLocation,
+  useNavigation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HomePage, { homeLoader } from "./pages/HomePage";
@@ -28,6 +34,7 @@ import NewsDetailPage from "./pages/NewsDetailPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 import AdminCollectionPage from "./pages/AdminCollectionPage";
+import AdminBulkImportPage from "./pages/AdminBulkImportPage";
 import { createPageLoader, newsDetailLoader } from "./api/routeLoaders";
 
 /* Pages that get their own full-screen layout (no shared Navbar/Footer) */
@@ -72,17 +79,77 @@ function App() {
       element: <AppShell />,
       children: [
         { path: "/", element: <HomePage />, loader: homeLoader },
-        { path: "/about", element: <HistoryPage />, loader: createPageLoader(["/school", "/alumni", "/staff", "/honorRoll"]) },
-        { path: "/leadership", element: <StaffPage />, loader: createPageLoader(["/staff", "/department"]) },
-        { path: "/teachers", element: <FacultyPage />, loader: createPageLoader(["/staff", "/department"]) },
-        { path: "/student-life", element: <StudentLifePage />, loader: createPageLoader(["/club", "/team", "/event", "/gallary", "/studentVoice"]) },
-        { path: "/news", element: <NewsPage />, loader: createPageLoader(["/news"]) },
-        { path: "/news/:slug", element: <NewsDetailPage />, loader: newsDetailLoader },
-        { path: "/academic-results", element: <AchievementsPage />, loader: createPageLoader(["/academicRecord", "/staff", "/honorRoll", "/alumni"]) },
-        { path: "/resources", element: <ResourceHubPage />, loader: createPageLoader(["/resource"]) },
-        { path: "/gallery", element: <GalleryPage />, loader: createPageLoader(["/gallary"]) },
-        { path: "/alumni", element: <AlumniPage />, loader: createPageLoader(["/alumni"]) },
-        { path: "/contact", element: <ContactPage />, loader: createPageLoader(["/school"]) },
+        {
+          path: "/about",
+          element: <HistoryPage />,
+          loader: createPageLoader([
+            "/school",
+            "/alumni",
+            "/staff",
+            "/honorRoll",
+          ]),
+        },
+        {
+          path: "/leadership",
+          element: <StaffPage />,
+          loader: createPageLoader(["/staff", "/department"]),
+        },
+        {
+          path: "/teachers",
+          element: <FacultyPage />,
+          loader: createPageLoader(["/staff", "/department"]),
+        },
+        {
+          path: "/student-life",
+          element: <StudentLifePage />,
+          loader: createPageLoader([
+            "/club",
+            "/team",
+            "/event",
+            "/gallary",
+            "/studentVoice",
+          ]),
+        },
+        {
+          path: "/news",
+          element: <NewsPage />,
+          loader: createPageLoader(["/news"]),
+        },
+        {
+          path: "/news/:slug",
+          element: <NewsDetailPage />,
+          loader: newsDetailLoader,
+        },
+        {
+          path: "/academic-results",
+          element: <AchievementsPage />,
+          loader: createPageLoader([
+            "/academicRecord",
+            "/staff",
+            "/honorRoll",
+            "/alumni",
+          ]),
+        },
+        {
+          path: "/resources",
+          element: <ResourceHubPage />,
+          loader: createPageLoader(["/resource"]),
+        },
+        {
+          path: "/gallery",
+          element: <GalleryPage />,
+          loader: createPageLoader(["/gallary"]),
+        },
+        {
+          path: "/alumni",
+          element: <AlumniPage />,
+          loader: createPageLoader(["/alumni"]),
+        },
+        {
+          path: "/contact",
+          element: <ContactPage />,
+          loader: createPageLoader(["/school"]),
+        },
         { path: "/login", element: <LoginPage /> },
         {
           path: "/admin",
@@ -102,17 +169,70 @@ function App() {
             { path: "messages", element: <AdminMessagesPage /> },
             { path: "academic-records", element: <AdminAcademicRecordsPage /> },
             { path: "news", element: <AdminNewsPage /> },
-            { path: "users", element: <AdminCollectionPage collection="users" /> },
-            { path: "school", element: <AdminCollectionPage collection="school" /> },
-            { path: "departments", element: <AdminCollectionPage collection="department" /> },
-            { path: "academic-years", element: <AdminCollectionPage collection="academicYear" /> },
-            { path: "resources", element: <AdminCollectionPage collection="resource" /> },
-            { path: "clubs", element: <AdminCollectionPage collection="club" /> },
-            { path: "media-files", element: <AdminCollectionPage collection="mediaFile" /> },
-            { path: "events", element: <AdminCollectionPage collection="event" /> },
-            { path: "teams", element: <AdminCollectionPage collection="team" /> },
-            { path: "student-voices", element: <AdminCollectionPage collection="studentVoice" /> },
-            { path: "honor-roll", element: <AdminCollectionPage collection="honorRoll" /> },
+            {
+              path: "users",
+              element: <AdminCollectionPage key="users" collection="users" />,
+            },
+            {
+              path: "school",
+              element: <AdminCollectionPage key="school" collection="school" />,
+            },
+
+            {
+              path: "departments",
+              element: (
+                <AdminCollectionPage key="department" collection="department" />
+              ),
+            },
+            {
+              path: "academic-years",
+              element: (
+                <AdminCollectionPage
+                  key="academicYear"
+                  collection="academicYear"
+                />
+              ),
+            },
+            {
+              path: "resources",
+              element: (
+                <AdminCollectionPage key="resource" collection="resource" />
+              ),
+            },
+            {
+              path: "clubs",
+              element: <AdminCollectionPage key="club" collection="club" />,
+            },
+            {
+              path: "media-files",
+              element: (
+                <AdminCollectionPage key="mediaFile" collection="mediaFile" />
+              ),
+            },
+            {
+              path: "events",
+              element: <AdminCollectionPage key="event" collection="event" />,
+            },
+            {
+              path: "teams",
+              element: <AdminCollectionPage key="team" collection="team" />,
+            },
+            {
+              path: "student-voices",
+              element: (
+                <AdminCollectionPage
+                  key="studentVoice"
+                  collection="studentVoice"
+                />
+              ),
+            },
+            {
+              path: "honor-roll",
+              element: (
+                <AdminCollectionPage key="honorRoll" collection="honorRoll" />
+              ),
+            },
+            { path: "bulk-import", element: <AdminBulkImportPage /> },
           ],
         },
         { path: "*", element: <NotFoundPage /> },

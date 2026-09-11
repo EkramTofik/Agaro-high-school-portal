@@ -26,32 +26,37 @@ const eventRouter = require("./routes/eventRouter");
 const studentVoiceRouter = require("./routes/studentVoiceRouter");
 const honorRollRouter = require("./routes/honorRollRouter");
 const teamRouter = require("./routes/teamRouter");
-const { protect, restrictTo } = require("./controllers/authenticationController");
-console.log(process.env.NODE_ENV);
+const bulkImportRouter = require("./routes/bulkImportRouter");
 
+const {
+  protect,
+  restrictTo,
+} = require("./controllers/authenticationController");
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow non-browser requests (curl, Postman, same-origin server calls)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow non-browser requests (curl, Postman, same-origin server calls)
+      if (!origin) return callback(null, true);
 
-    // Allow any Vercel domain: production + previews
-    if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) {
-      return callback(null, true);
-    }
+      // Allow any Vercel domain: production + previews
+      if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) {
+        return callback(null, true);
+      }
 
-    // Allow localhost for local dev (Vite default 5173, others 3000)
-    if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
-      return callback(null, true);
-    }
+      // Allow localhost for local dev (Vite default 5173, others 3000)
+      if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
 
-    return callback(new Error(`CORS blocked for origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-}));
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  }),
+);
 app.use(express.json());
 
 // app.use("/api/v1/tours", tourRouter);
@@ -68,7 +73,7 @@ app.use("/api/v1", (req, res, next) => {
 // app.all("*path", (req, res, next) => {
 //   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 // });
-
+app.use("/api/v1/admin/bulk-import", bulkImportRouter);
 app.use("/api/v1/school", schoolRouter);
 app.use("/api/v1/department", departmentRouter);
 app.use("/api/v1/staff", staffRouter);

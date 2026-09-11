@@ -4,6 +4,10 @@ const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
+    school: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "School",
+    },
     fullName: {
       type: String,
       required: [true, "Please tell us your name"],

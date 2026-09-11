@@ -16,6 +16,7 @@ const quickActions = [
   { label: "Departments", route: "/admin/departments" },
   { label: "Resources", route: "/admin/resources" },
   { label: "Teams", route: "/admin/teams" },
+  { label: "Bulk Import", route: "/admin/bulk-import" },
   { label: "My Profile", route: "/admin/profile" },
 ];
 
@@ -57,11 +58,23 @@ export default function AdminDashboard() {
   }, []);
 
   const stats = [
-    { label: "Faculty Members", value: counts.faculty, route: "/admin/faculty" },
+    {
+      label: "Faculty Members",
+      value: counts.faculty,
+      route: "/admin/faculty",
+    },
     { label: "News Updates", value: counts.news, route: "/admin/news" },
-    { label: "Academic Records", value: counts.records, route: "/admin/academic-records" },
+    {
+      label: "Academic Records",
+      value: counts.records,
+      route: "/admin/academic-records",
+    },
     { label: "Alumni Profiles", value: counts.alumni, route: "/admin/alumni" },
-    { label: "Inbox Messages", value: counts.messages, route: "/admin/messages" },
+    {
+      label: "Inbox Messages",
+      value: counts.messages,
+      route: "/admin/messages",
+    },
   ];
 
   return (
@@ -74,8 +87,8 @@ export default function AdminDashboard() {
           Welcome, {user?.fullName || "Administrator"}.
         </h2>
         <p className="max-w-xl text-[12px] leading-relaxed text-white/55">
-          Manage faculty, news, academic records, alumni, and school content from
-          one organized console. Use the sidebar to open any admin page.
+          Manage faculty, news, academic records, alumni, and school content
+          from one organized console. Use the sidebar to open any admin page.
         </p>
       </div>
 
@@ -91,14 +104,18 @@ export default function AdminDashboard() {
             onClick={() => navigate(stat.route)}
             className="rounded-xl border border-[#e5e1d8] bg-white p-5 text-left transition hover:border-[#033327]/30 hover:shadow-sm"
           >
-            <p className="font-serif text-2xl font-bold text-[#033327]">{stat.value}</p>
+            <p className="font-serif text-2xl font-bold text-[#033327]">
+              {stat.value}
+            </p>
             <p className="mt-1 text-[10px] uppercase tracking-wide text-gray-400">
               {stat.label}
             </p>
           </button>
         ))}
         {loading && (
-          <p className="col-span-full text-sm text-gray-500">Loading metrics…</p>
+          <p className="col-span-full text-sm text-gray-500">
+            Loading metrics…
+          </p>
         )}
       </div>
 

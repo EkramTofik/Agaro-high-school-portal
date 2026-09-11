@@ -185,6 +185,15 @@ function App() {
               ),
             },
             {
+              path: "academic-performance",
+              element: (
+                <AdminCollectionPage
+                  key="academicPerformance"
+                  collection="academicPerformance"
+                />
+              ),
+            },
+            {
               path: "academic-years",
               element: (
                 <AdminCollectionPage

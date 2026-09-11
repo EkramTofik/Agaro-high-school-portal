@@ -184,11 +184,26 @@ const configs = {
     filterDefs: [
       { key: "yearSpan", label: "Year span", allLabel: "All years" },
     ],
+
     fields: [
       ["rank", "Rank", true, "number"],
       ["studentName", "Student name", true],
       ["yearSpan", "Year span", true],
       ["accomplishment", "Accomplishment", true, "textarea"],
+    ],
+  },
+  academicPerformance: {
+    title: "Academic Performance",
+    endpoint: "/academicPerformance",
+    searchKeys: ["year", "topStudentName"],
+    filterDefs: [],
+    fields: [
+      ["year", "Year", true, "number"],
+      ["passRate", "Pass rate (%)", true, "number"],
+      ["distinctionsPercent", "Distinctions (%)", false, "number"],
+      ["averageGPA", "Average Score (out of 700)", false, "number"],
+      ["topStudentName", "Top student name", false],
+      ["topStudentImageUrl", "Top student image URL", false, "url"],
     ],
   },
   users: {

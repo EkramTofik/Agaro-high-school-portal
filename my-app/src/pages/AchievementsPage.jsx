@@ -62,41 +62,38 @@ const DonutChart = () => {
   );
 };
 
-/* ── Bar Chart ───────────────────────────────────────────── */
-const BarChart = () => {
-  const bars = [
-    { val: 38 },
-    { val: 45 },
-    { val: 50 },
-    { val: 55 },
-    { val: 60 },
-    { val: 64 },
-    { val: 69 },
-    { val: 74 },
-    { val: 79 },
-    { val: 85 },
-    { val: 100 },
-  ];
+/* ── Bar Chart (driven by real /academicPerformance/trend data) ──── */
+const BarChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <p className="mt-6 text-xs text-gray-400 text-center py-6">
+        No pass rate history has been published yet.
+      </p>
+    );
+  }
   return (
     <div className="mt-6">
       <div className="flex items-end gap-1.5" style={{ height: 120 }}>
-        {bars.map((b, i) => (
+        {data.map((entry, i) => (
           <div
-            key={i}
+            key={entry._id || entry.year}
             className="flex-1 rounded-t-sm"
             style={{
-              height: `${b.val}%`,
-              background: i === bars.length - 1 ? "#033327" : "#b8d4c8",
+              height: `${entry.passRate}%`,
+              background: i === data.length - 1 ? "#033327" : "#b8d4c8",
             }}
+            title={`${entry.year}: ${entry.passRate}%`}
           />
         ))}
       </div>
       <div className="border-t border-[#ccc8c0] mt-1 pt-2 flex justify-between items-center">
-        <span className="text-[9px] text-gray-400">2014</span>
+        <span className="text-[9px] text-gray-400">{data[0]?.year}</span>
         <span className="text-[8px] font-semibold text-gray-400 uppercase tracking-[0.15em]">
           Pass Rate Trend
         </span>
-        <span className="text-[9px] text-gray-400">2023</span>
+        <span className="text-[9px] text-gray-400">
+          {data[data.length - 1]?.year}
+        </span>
       </div>
     </div>
   );
@@ -107,19 +104,52 @@ const honorIcons = [Award, Trophy, Star, BookOpen];
 /* ── Page ────────────────────────────────────────────────── */
 export default function AchievementsPage() {
   const [educators, setEducators] = useState([]);
-  const [students, setStudents] = useState([]);
   const [universities, setUniversities] = useState([]);
+  const [performanceTrend, setPerformanceTrend] = useState([]);
   const [honorsList, setHonorsList] = useState([]);
   const [honorsLoading, setHonorsLoading] = useState(true);
   const [honorsError, setHonorsError] = useState("");
 
+  const currentYearStats =
+    performanceTrend[performanceTrend.length - 1] || null;
+
   useEffect(() => {
-    api.get("/alumni").then((alumniRes) => {
-      const alumni = alumniRes.data?.data?.data || alumniRes.data?.data || [];
-      const list = Array.isArray(alumni) ? alumni : [alumni];
-      setStudents(list.filter(Boolean).map((item) => ({ name: item.fullName, role: item.profession || `Graduating Class ${item.graduationYear || ""}`, img: item.imageUrl })));
-      setUniversities(list.filter((item) => item.location || item.company).map((item) => ({ name: item.company || item.location, sub: item.profession || "Alumni placement", bgColor: "#033327", icon: Award })));
-    }).catch(() => { setStudents([]); setUniversities([]); });
+    api
+      .get("/alumni")
+      .then((alumniRes) => {
+        const alumni = alumniRes.data?.data?.data || alumniRes.data?.data || [];
+        const list = Array.isArray(alumni) ? alumni : [alumni];
+        setUniversities(
+          list
+            .filter(Boolean)
+            .filter((item) => item.location || item.company)
+            .map((item) => ({
+              name: item.company || item.location,
+              sub: item.profession || "Alumni placement",
+              bgColor: "#033327",
+              icon: Award,
+            })),
+        );
+      })
+      .catch(() => setUniversities([]));
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/academicPerformance/trend", { params: { limit: 3 } })
+      .then((res) => {
+        const payload = res.data?.data?.data ?? res.data?.data ?? [];
+        const items = (Array.isArray(payload) ? payload : [payload]).filter(
+          Boolean,
+        );
+        // Sort ascending by year, then keep only the 3 most recent years —
+        // regardless of what order/limit the API itself applies. This
+        // guarantees the chart/photo row reads oldest → newest (left to
+        // right) and that the last entry is always the latest year.
+        const sorted = items.slice().sort((a, b) => a.year - b.year);
+        setPerformanceTrend(sorted.slice(-3));
+      })
+      .catch(() => setPerformanceTrend([]));
   }, []);
 
   useEffect(() => {
@@ -192,48 +222,78 @@ export default function AchievementsPage() {
             </p>
             <div className="border border-[#e5e1d8] rounded-xl p-5 bg-white shadow-sm mb-4">
               <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">
-                Pass Rate
+                Pass Rate {currentYearStats ? `(${currentYearStats.year})` : ""}
               </p>
               <div className="flex items-end gap-4 mb-4">
                 <p className="font-serif text-5xl font-bold text-[#033327]">
-                  98.4%
+                  {currentYearStats ? `${currentYearStats.passRate}%` : "—"}
                 </p>
-                <span className="text-[10px] font-bold text-[#4a8a6a] mb-2 bg-[#4a8a6a]/10 px-2 py-0.5 rounded">
-                  ↑ Pass Rate
-                </span>
+                {currentYearStats && (
+                  <span className="text-[10px] font-bold text-[#4a8a6a] mb-2 bg-[#4a8a6a]/10 px-2 py-0.5 rounded">
+                    ↑ Pass Rate
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-y-2 text-[11px]">
                 <span className="text-gray-400">Distinctions</span>
-                <span className="font-bold text-[#033327] text-right">40%</span>
-                <span className="text-gray-400">Average GPA</span>
                 <span className="font-bold text-[#033327] text-right">
-                  3.79
+                  {currentYearStats?.distinctionsPercent != null
+                    ? `${currentYearStats.distinctionsPercent}%`
+                    : "—"}
+                </span>
+                <span className="text-gray-400">Average Score</span>
+                <span className="font-bold text-[#033327] text-right">
+                  {currentYearStats?.averageGPA != null
+                    ? `${currentYearStats.averageGPA} / 700`
+                    : "—"}
                 </span>
               </div>
             </div>
-            <BarChart />
+            <BarChart data={performanceTrend} />
           </div>
+
           <div className="flex-1">
             <p className="text-[9px] font-bold text-[#b5985b] uppercase tracking-[0.2em] mb-5">
-              Top Year Minds
+              Top Grade, Year by Year
             </p>
-            <div className="grid grid-cols-3 gap-4">
-              {students.map((s) => (
-                <div key={s.name} className="text-center">
-                  <div className="aspect-[3/4] rounded-xl overflow-hidden border border-[#e5e1d8] mb-2">
-                    <img
-                      src={s.img}
-                      alt={s.name}
-                      className="w-full h-full object-cover grayscale"
-                    />
-                  </div>
-                  <p className="text-[11px] font-bold text-[#033327] leading-tight">
-                    {s.name}
-                  </p>
-                  <p className="text-[9px] text-gray-400 mt-0.5">{s.role}</p>
-                </div>
-              ))}
-            </div>
+            {performanceTrend.filter((p) => p.topStudentImageUrl).length ===
+            0 ? (
+              <p className="text-xs text-gray-400">
+                No top-grade photos have been published yet.
+              </p>
+            ) : (
+              <div className="grid grid-cols-3 gap-4">
+                {performanceTrend
+                  .filter((p) => p.topStudentImageUrl)
+                  .map((p) => (
+                    <div
+                      key={p._id}
+                      className="flex flex-col items-center text-center"
+                    >
+                      <div className="aspect-[3/4] w-full rounded-xl overflow-hidden border border-[#e5e1d8] bg-[#f4f1ea]">
+                        <img
+                          src={p.topStudentImageUrl}
+                          alt={p.topStudentName || `Top grade ${p.year}`}
+                          className="w-full h-full object-cover grayscale"
+                        />
+                      </div>
+                      <p className="mt-2 text-[9px] font-bold text-[#b5985b] uppercase tracking-widest">
+                        {p.year}
+                      </p>
+                      <p className="text-sm font-bold text-[#1a1a1a] leading-snug">
+                        {p.topStudentName || "—"}
+                      </p>
+                      <p className="text-[11px] text-gray-500">
+                        {p.averageGPA != null
+                          ? `GPA ${p.averageGPA}`
+                          : p.passRate != null
+                            ? `${p.passRate}% Pass Rate`
+                            : ""}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -317,7 +377,9 @@ export default function AchievementsPage() {
         ) : honorsError ? (
           <p className="text-sm text-red-600">{honorsError}</p>
         ) : honorsList.length === 0 ? (
-          <p className="text-sm text-gray-500">No institutional honors have been published yet.</p>
+          <p className="text-sm text-gray-500">
+            No institutional honors have been published yet.
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {honorsList.map(({ id, icon: Icon, title, sub, yearSpan }) => (

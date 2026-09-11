@@ -27,7 +27,7 @@ const studentVoiceRouter = require("./routes/studentVoiceRouter");
 const honorRollRouter = require("./routes/honorRollRouter");
 const teamRouter = require("./routes/teamRouter");
 const bulkImportRouter = require("./routes/bulkImportRouter");
-
+const academicPerformanceRouter = require("./routes/academicPerformanceRouter");
 const {
   protect,
   restrictTo,
@@ -59,10 +59,7 @@ app.use(
 );
 app.use(express.json());
 
-// app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
-// Public reads remain available, while all writes require an administrator.
-// Contact submissions are intentionally public so the contact form works.
 app.use("/api/v1", (req, res, next) => {
   if (req.path.startsWith("/contact") || req.method === "GET") return next();
   return protect(req, res, (error) => {
@@ -90,6 +87,7 @@ app.use("/api/v1/event", eventRouter);
 app.use("/api/v1/studentVoice", studentVoiceRouter);
 app.use("/api/v1/honorRoll", honorRollRouter);
 app.use("/api/v1/team", teamRouter);
+app.use("/api/v1/academicPerformance", academicPerformanceRouter);
 
 app.use(globalErrorHandler);
 module.exports = app;

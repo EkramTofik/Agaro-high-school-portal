@@ -17,6 +17,7 @@ const quickActions = [
   { label: "Resources", route: "/admin/resources" },
   { label: "Teams", route: "/admin/teams" },
   { label: "Bulk Import", route: "/admin/bulk-import" },
+  { label: "Academic Performance", route: "/admin/academic-performance" },
   { label: "My Profile", route: "/admin/profile" },
 ];
 

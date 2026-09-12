@@ -4,9 +4,17 @@
         {
             "src": "server.js",
             "use": "@vercel/node"
+        },
+        {
+            "src": "classify.py",
+            "use": "@vercel/python"
         }
     ],
     "routes": [
+        {
+            "src": "/api/classify",
+            "dest": "classify.py"
+        },
         {
             "src": "/(.*)",
             "dest": "server.js"

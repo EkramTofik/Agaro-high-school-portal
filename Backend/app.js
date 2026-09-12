@@ -28,6 +28,7 @@ const honorRollRouter = require("./routes/honorRollRouter");
 const teamRouter = require("./routes/teamRouter");
 const bulkImportRouter = require("./routes/bulkImportRouter");
 const academicPerformanceRouter = require("./routes/academicPerformanceRouter");
+const assistantRouter = require("./routes/assistantRouter");
 const {
   protect,
   restrictTo,
@@ -61,7 +62,12 @@ app.use(express.json());
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1", (req, res, next) => {
-  if (req.path.startsWith("/contact") || req.method === "GET") return next();
+  if (
+    req.path.startsWith("/contact") ||
+    req.path.startsWith("/assistant") ||
+    req.method === "GET"
+  )
+    return next();
   return protect(req, res, (error) => {
     if (error) return next(error);
     return restrictTo("admin")(req, res, next);
@@ -88,6 +94,7 @@ app.use("/api/v1/studentVoice", studentVoiceRouter);
 app.use("/api/v1/honorRoll", honorRollRouter);
 app.use("/api/v1/team", teamRouter);
 app.use("/api/v1/academicPerformance", academicPerformanceRouter);
+app.use("/api/v1/assistant", assistantRouter);
 
 app.use(globalErrorHandler);
 module.exports = app;

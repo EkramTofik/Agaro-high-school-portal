@@ -35,6 +35,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 import AdminCollectionPage from "./pages/AdminCollectionPage";
 import AdminBulkImportPage from "./pages/AdminBulkImportPage";
+import ChatWidget from "./components/ChatWidget";
 import { createPageLoader, newsDetailLoader } from "./api/routeLoaders";
 
 /* Pages that get their own full-screen layout (no shared Navbar/Footer) */
@@ -67,6 +68,7 @@ function AppShell() {
             <Outlet />
           </main>
           <Footer />
+          <ChatWidget />
         </div>
       )}
     </>

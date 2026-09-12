@@ -45,7 +45,7 @@ const importConfig = {
       },
     },
     autoFields: (row, req) => ({
-      school: req.user.school,
+      school: req.school,
       createdBy: req.user._id,
       slug: slugify(row.title),
       publishedAt: row.status === "published" ? new Date() : undefined,
@@ -74,7 +74,7 @@ const importConfig = {
       isFeatured: { kind: "boolean", default: false },
     },
     autoFields: (cleaned, req) => ({
-      school: req.user.school,
+      school: req.school,
     }),
   },
 
@@ -89,7 +89,7 @@ const importConfig = {
       category: { kind: "text" },
       isFeatured: { kind: "boolean", default: false },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   Department: {
@@ -100,7 +100,7 @@ const importConfig = {
       description: { kind: "text" },
       headName: { kind: "text" },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   Event: {
@@ -114,7 +114,7 @@ const importConfig = {
       imageUrl: { kind: "url" },
       isFeatured: { kind: "boolean", default: false },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   Galleryitem: {
@@ -130,7 +130,7 @@ const importConfig = {
       imageUrl: { kind: "url", required: true },
       caption: { kind: "text" },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   HonorRoll: {
@@ -142,7 +142,7 @@ const importConfig = {
       yearSpan: { kind: "text", required: true },
       accomplishment: { kind: "text", required: true },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   Mediafile: {
@@ -154,11 +154,9 @@ const importConfig = {
       mimeType: { kind: "text" },
       sizeBytes: { kind: "number" },
     },
-    // Note: this only records metadata for a file already hosted elsewhere
-    // (fileUrl). It does not upload binary files — bulk file upload is a
-    // different feature from bulk data-row import.
+
     autoFields: (row, req) => ({
-      school: req.user.school,
+      school: req.school,
       uploadedBy: req.user._id,
     }),
   },
@@ -173,7 +171,7 @@ const importConfig = {
       fileUrl: { kind: "url", required: true },
     },
     autoFields: (row, req) => ({
-      school: req.user.school,
+      school: req.school,
       uploadedBy: req.user._id,
     }),
   },
@@ -204,7 +202,7 @@ const importConfig = {
         refLookupField: "name",
       },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   StudentVoice: {
@@ -217,7 +215,7 @@ const importConfig = {
       quote: { kind: "text" },
       isFeatured: { kind: "boolean", default: true },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   Team: {
@@ -246,7 +244,7 @@ const importConfig = {
       endYear: { kind: "number", required: true },
       isCurrent: { kind: "boolean", default: false },
     },
-    autoFields: (row, req) => ({ school: req.user.school }),
+    autoFields: (row, req) => ({ school: req.school }),
   },
 
   Academicrecord: {
@@ -279,7 +277,7 @@ const importConfig = {
       },
     },
     autoFields: (row, req) => ({
-      school: req.user.school,
+      school: req.school,
       uploadedBy: req.user._id,
       publishedAt: new Date(),
     }),

@@ -21,53 +21,6 @@ const icons = {
       <path d="m21 21-4.35-4.35" />
     </svg>
   ),
-  bell: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-  ),
-  history: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M12 7v5l4 2" />
-    </svg>
-  ),
-  archiveHome: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="2" y="4" width="20" height="5" rx="2" />
-      <path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9" />
-      <path d="M10 13h4" />
-    </svg>
-  ),
   users: (
     <svg
       width="16"
@@ -83,83 +36,6 @@ const icons = {
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  ),
-  news: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" />
-    </svg>
-  ),
-  star: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  ),
-  resource: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-      <polyline points="10 9 9 9 8 9" />
-    </svg>
-  ),
-  settings: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-    </svg>
-  ),
-  support: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   ),
   eye: (
@@ -192,111 +68,54 @@ const icons = {
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
   ),
-  starFilled: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="#b5985b"
-      stroke="#b5985b"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  ),
-  shield: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#4a8a6a"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  ),
-  minusCircle: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#6b7280"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="8" y1="12" x2="16" y2="12" />
-    </svg>
-  ),
-  award: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#4a8a6a"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="7" />
-      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-    </svg>
-  ),
 };
 
-export default function AdminFacultyDirectoryPage() {
+/* ── Profession enum (must match the schema) ─── */
+const PROFESSION_OPTIONS = [
+  "Science & Medicine",
+  "Public Affairs",
+  "Technology & Business",
+  "Fine Arts",
+];
+
+export default function AdminAlumniDirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("All Faculty");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
-  const [faculty, setFaculty] = useState([]);
+  const [professionFilter, setProfessionFilter] = useState("All Alumni");
+  const [featuredFilter, setFeaturedFilter] = useState("");
+  const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formError, setFormError] = useState("");
   const [formPerson, setFormPerson] = useState(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [departments, setDepartments] = useState([]);
-  const loadFaculty = () => {
+
+  const loadAlumni = () => {
     setLoading(true);
     setError("");
     return api
-      .get("/staff")
+      .get("/alumni")
       .then((res) => {
         const payload = res.data?.data?.data ?? res.data?.data ?? [];
-        setFaculty(
+        setAlumni(
           (Array.isArray(payload) ? payload : [payload])
             .filter(Boolean)
             .map((item) => ({
               id: item._id,
-              name: item.fullName || "Unnamed staff member",
-              role: item.title || "Educator",
-              dept:
-                item.department?.name ||
-                (typeof item.department === "string"
-                  ? item.department
-                  : "Other"),
-              year: item.yearsAtSchool ?? item.yearsExperience ?? "—",
-              status: item.isActive === false ? "INACTIVE" : "PERMANENT",
+              name: item.fullName || "Unnamed alumnus",
+              role: item.profession || "Alumnus",
+              profession: item.profession || "Other",
+              company: item.company || "",
+              location: item.location || "",
+              year: item.graduationYear ?? "—",
+              featured: !!item.isFeatured,
               avatar: item.imageUrl || null,
               raw: item,
-              seal: icons.users,
-              sealColor: "#033327",
             })),
         );
       })
       .catch((e) =>
-        setError(
-          e.response?.data?.message || "Could not load faculty records.",
-        ),
+        setError(e.response?.data?.message || "Could not load alumni records."),
       )
       .finally(() => setLoading(false));
   };
@@ -304,199 +123,150 @@ export default function AdminFacultyDirectoryPage() {
   useEffect(() => {
     let cancelled = false;
     // Deferred to a microtask so the initial setState calls made by
-    // loadFaculty()/the department fetch don't happen synchronously
-    // within the effect body itself (avoids cascading-render warnings).
+    // loadAlumni() don't happen synchronously within the effect body itself
+    // (avoids cascading-render warnings).
     queueMicrotask(() => {
       if (cancelled) return;
-      loadFaculty();
-      api
-        .get("/department")
-        .then((res) => {
-          if (cancelled) return;
-          const payload = res.data?.data?.data ?? res.data?.data ?? [];
-          setDepartments(
-            (Array.isArray(payload) ? payload : [payload]).filter(Boolean),
-          );
-        })
-        .catch((e) => {
-          if (cancelled) return;
-          setError(e.response?.data?.message || "Could not load departments.");
-        });
+      loadAlumni();
     });
     return () => {
       cancelled = true;
     };
   }, []);
-  const addFaculty = () => {
+
+  const addAlumni = () => {
     setFormError("");
     setFormPerson({});
   };
-  const editFaculty = (person) => {
+  const editAlumni = (person) => {
     setFormError("");
     setFormPerson(person.raw || person);
   };
-  const saveFaculty = async (values) => {
+  const saveAlumni = async (values) => {
     setSaving(true);
     setFormError("");
     setError("");
     try {
       const payload = {
-        ...values,
-        department: values.department || null,
-        isActive: values.isActive ?? true,
+        fullName: values.fullName,
+        graduationYear: values.graduationYear
+          ? Number(values.graduationYear)
+          : undefined,
+        profession: values.profession || undefined,
+        company: values.company || undefined,
+        location: values.location || undefined,
+        bio: values.bio || undefined,
+        imageUrl: values.imageUrl || undefined,
+        isFeatured: !!values.isFeatured,
       };
       await (formPerson?._id
-        ? api.patch(`/staff/${formPerson._id}`, payload)
-        : api.post("/staff", payload));
+        ? api.patch(`/alumni/${formPerson._id}`, payload)
+        : api.post("/alumni", payload));
       setFormPerson(null);
-      await loadFaculty();
+      await loadAlumni();
     } catch (e) {
       const status = e.response?.status;
       const message =
         status === 401
           ? "Your session expired. Please log in again, then retry."
-          : e.response?.data?.message || "Could not save faculty record.";
+          : e.response?.data?.message || "Could not save alumni record.";
       setFormError(message);
       setError(message);
     } finally {
       setSaving(false);
     }
   };
-  const deleteFaculty = async (person) => {
+  const deleteAlumni = async (person) => {
     setConfirmDelete({
       message: `Delete ${person.name}?`,
       action: async () => {
         try {
-          await api.delete(`/staff/${person.id}`);
-          await loadFaculty();
+          await api.delete(`/alumni/${person.id}`);
+          await loadAlumni();
         } catch (e) {
           setError(
-            e.response?.data?.message || "Could not delete faculty record.",
+            e.response?.data?.message || "Could not delete alumni record.",
           );
         }
       },
     });
   };
 
-  const facultyFields = useMemo(
+  /* ── Form fields — mapped 1:1 to the Mongoose schema (minus refs) ── */
+  const alumniFields = useMemo(
     () => [
       { name: "fullName", label: "Full name", required: true },
-      { name: "title", label: "Title", required: true },
       {
-        name: "department",
-        label: "Department",
+        name: "graduationYear",
+        label: "Graduation year",
+        type: "number",
+        min: 1900,
+        integer: true,
+      },
+      {
+        name: "profession",
+        label: "Profession",
         type: "select",
-        emptyValue: null,
-        options: departments.map((department) => ({
-          value: String(department._id),
-          label: department.name,
-        })),
+        emptyValue: "",
+        options: PROFESSION_OPTIONS,
       },
-      { name: "qualifications", label: "Qualifications" },
-      { name: "leadershipCredentials", label: "Leadership credentials" },
-      {
-        name: "yearsAtSchool",
-        label: "Years at school",
-        type: "number",
-        min: 0,
-        integer: true,
-      },
-      {
-        name: "publishedPapers",
-        label: "Published papers",
-        type: "number",
-        min: 0,
-        integer: true,
-      },
-      { name: "bio", label: "Biography", type: "textarea" },
+      { name: "company", label: "Company" },
+      { name: "location", label: "Location" },
       { name: "imageUrl", label: "Image URL", type: "url" },
+      { name: "bio", label: "Biography", type: "textarea" },
       {
-        name: "isActive",
-        label: "Active",
-        type: "checkbox",
-        defaultValue: true,
-      },
-      {
-        name: "isLeadership",
-        label: "Leadership member",
+        name: "isFeatured",
+        label: "Featured alumnus",
         type: "checkbox",
         defaultValue: false,
-      },
-      {
-        name: "isPresident",
-        label: "President",
-        type: "checkbox",
-        defaultValue: false,
-      },
-      {
-        name: "isVicePresident",
-        label: "Vice President",
-        type: "checkbox",
-        defaultValue: false,
-      },
-      {
-        name: "isDistinguished",
-        label: "Distinguished faculty",
-        type: "checkbox",
-        defaultValue: false,
-      },
-      {
-        name: "isAdministrative",
-        label: "Administrative staff",
-        type: "checkbox",
-        defaultValue: false,
-      },
-      { name: "office", label: "Office" },
-      {
-        name: "sortOrder",
-        label: "Sort order",
-        type: "number",
-        defaultValue: 0,
-        integer: true,
       },
     ],
-    [departments],
+    [],
   );
 
-  const departmentFilters = useMemo(
-    () => ["All Faculty", ...departments.map((department) => department.name)],
-    [departments],
+  /* ── Filter options — Profession enum + "All Alumni" ── */
+  const professionFilters = useMemo(
+    () => ["All Alumni", ...PROFESSION_OPTIONS],
+    [],
   );
 
-  const filteredFaculty = useMemo(() => {
-    return faculty.filter((person) => {
+  const filteredAlumni = useMemo(() => {
+    return alumni.filter((person) => {
       const raw = person.raw || person;
-      if (!matchesSearch(person, searchQuery, ["name", "role", "dept"]))
-        return false;
       if (
-        departmentFilter !== "All Faculty" &&
-        person.dept !== departmentFilter
+        !matchesSearch(person, searchQuery, [
+          "name",
+          "company",
+          "location",
+          "profession",
+        ])
       )
         return false;
-      if (statusFilter === "true" && raw.isActive === false) return false;
-      if (statusFilter === "false" && raw.isActive !== false) return false;
-      if (roleFilter === "leadership" && !raw.isLeadership) return false;
-      if (roleFilter === "distinguished" && !raw.isDistinguished) return false;
-      if (roleFilter === "administrative" && !raw.isAdministrative)
+      if (
+        professionFilter !== "All Alumni" &&
+        person.profession !== professionFilter
+      )
         return false;
+      if (featuredFilter === "true" && !raw.isFeatured) return false;
+      if (featuredFilter === "false" && raw.isFeatured) return false;
       return true;
     });
-  }, [faculty, searchQuery, departmentFilter, statusFilter, roleFilter]);
+  }, [alumni, searchQuery, professionFilter, featuredFilter]);
 
   return (
     <div className="bg-[#FAF8F5] text-[#1a1a1a]">
       {formPerson !== null && (
         <AdminFormModal
-          title={formPerson._id ? "Edit faculty member" : "Add faculty member"}
+          title={formPerson._id ? "Edit alumnus record" : "Add alumnus record"}
           initialValues={formPerson}
           onClose={() => {
             setFormPerson(null);
             setFormError("");
           }}
-          onSubmit={saveFaculty}
+          onSubmit={saveAlumni}
           submitting={saving}
           error={formError}
-          fields={facultyFields}
+          fields={alumniFields}
         />
       )}
       {confirmDelete && (
@@ -519,20 +289,20 @@ export default function AdminFacultyDirectoryPage() {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
               <div>
                 <h1 className="font-serif text-[28px] sm:text-[34px] lg:text-[42px] font-bold text-[#033327] mb-3 leading-tight">
-                  Faculty Directory
+                  Alumni Directory
                 </h1>
                 <p className="text-[13px] text-gray-600 max-w-xl leading-relaxed">
-                  The living registry of our esteemed educators and scholars.
-                  Manage professional profiles, academic assignments, and
-                  historical contributions.
+                  The living registry of our esteemed graduates. Manage
+                  professional profiles and celebrate the legacy of Agaro High
+                  School's alumni.
                 </p>
               </div>
               <button
-                onClick={addFaculty}
+                onClick={addAlumni}
                 className="w-full sm:w-auto px-5 py-2.5 rounded bg-[#033327] text-[11px] font-bold text-white tracking-wide hover:bg-[#0d4a3b] transition-colors flex items-center justify-center gap-2 sm:mt-2 shadow-md shrink-0"
               >
-                <span className="text-sm leading-none">+</span> New Faculty
-                Member
+                <span className="text-sm leading-none">+</span> New Alumnus
+                Record
               </button>
             </div>
 
@@ -547,22 +317,22 @@ export default function AdminFacultyDirectoryPage() {
               <div className="flex-1 border border-[#e5e1d8] rounded-xl p-4 sm:p-5 bg-[#fcfbfa] shadow-sm min-w-0">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
-                    Filter by Department
+                    Filter by Profession
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {departmentFilters.map((dept) => (
+                  {professionFilters.map((prof) => (
                     <button
-                      key={dept}
-                      onClick={() => setDepartmentFilter(dept)}
+                      key={prof}
+                      onClick={() => setProfessionFilter(prof)}
                       className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] font-bold transition-all
                         ${
-                          departmentFilter === dept
+                          professionFilter === prof
                             ? "bg-[#033327] text-white shadow-sm"
                             : "bg-white border border-[#e5e1d8] text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                         }`}
                     >
-                      {dept}
+                      {prof}
                     </button>
                   ))}
                 </div>
@@ -570,14 +340,14 @@ export default function AdminFacultyDirectoryPage() {
 
               <div className="w-full lg:w-64 shrink-0 bg-[#e8f0ec] rounded-xl p-6 border border-[#d6e3dc] flex flex-col justify-center shadow-sm">
                 <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">
-                  CURRENT STAFF COUNT
+                  CURRENT ALUMNI COUNT
                 </span>
                 <div className="flex items-baseline gap-2">
                   <span className="font-serif text-[36px] sm:text-[42px] font-bold text-[#033327] leading-none">
-                    {filteredFaculty.length}
+                    {filteredAlumni.length}
                   </span>
                   <span className="text-[11px] font-medium text-gray-600">
-                    scholars
+                    alumni
                   </span>
                 </div>
               </div>
@@ -586,34 +356,34 @@ export default function AdminFacultyDirectoryPage() {
             <AdminFilters
               search={searchQuery}
               onSearchChange={setSearchQuery}
-              searchPlaceholder="Search Faculty Records..."
+              searchPlaceholder="Search by name, company, location…"
               filters={[
                 {
-                  key: "isActive",
-                  label: "Status",
-                  value: statusFilter,
-                  onChange: setStatusFilter,
+                  key: "profession",
+                  label: "Profession",
+                  value:
+                    professionFilter === "All Alumni" ? "" : professionFilter,
+                  onChange: (value) =>
+                    setProfessionFilter(value || "All Alumni"),
                   options: [
                     { value: "", label: "All" },
-                    { value: "true", label: "Active" },
-                    { value: "false", label: "Inactive" },
+                    ...PROFESSION_OPTIONS.map((p) => ({ value: p, label: p })),
                   ],
                 },
                 {
-                  key: "role",
-                  label: "Role",
-                  value: roleFilter,
-                  onChange: setRoleFilter,
+                  key: "isFeatured",
+                  label: "Featured",
+                  value: featuredFilter,
+                  onChange: setFeaturedFilter,
                   options: [
                     { value: "", label: "All" },
-                    { value: "leadership", label: "Leadership" },
-                    { value: "distinguished", label: "Distinguished" },
-                    { value: "administrative", label: "Administrative" },
+                    { value: "true", label: "Featured" },
+                    { value: "false", label: "Not featured" },
                   ],
                 },
               ]}
-              resultCount={filteredFaculty.length}
-              totalCount={faculty.length}
+              resultCount={filteredAlumni.length}
+              totalCount={alumni.length}
             />
 
             {/* Table */}
@@ -626,16 +396,19 @@ export default function AdminFacultyDirectoryPage() {
                         Honor Seal
                       </th>
                       <th className="py-4 px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        Faculty Member
+                        Alumnus
                       </th>
                       <th className="py-4 px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        Department
+                        Profession
                       </th>
                       <th className="py-4 px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        Tenure
+                        Company
                       </th>
                       <th className="py-4 px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        Status
+                        Graduation
+                      </th>
+                      <th className="py-4 px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                        Featured
                       </th>
                       <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
                         Actions
@@ -643,9 +416,9 @@ export default function AdminFacultyDirectoryPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#e5e1d8]">
-                    {filteredFaculty.length === 0 ? (
+                    {filteredAlumni.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="py-12 text-center">
+                        <td colSpan="7" className="py-12 text-center">
                           <p
                             className={
                               error
@@ -654,24 +427,21 @@ export default function AdminFacultyDirectoryPage() {
                             }
                           >
                             {loading
-                              ? "Loading faculty records…"
+                              ? "Loading alumni records…"
                               : error ||
-                                "No faculty members found matching your criteria."}
+                                "No alumni members found matching your criteria."}
                           </p>
                         </td>
                       </tr>
                     ) : (
-                      filteredFaculty.map((person, idx) => (
+                      filteredAlumni.map((person, idx) => (
                         <tr
                           key={idx}
                           className="hover:bg-gray-50 transition-colors group"
                         >
                           <td className="py-4 px-6">
-                            <div
-                              className="w-8 h-8 rounded-full border flex items-center justify-center transition-transform group-hover:scale-110"
-                              style={{ borderColor: `${person.sealColor}40` }}
-                            >
-                              {person.seal}
+                            <div className="w-8 h-8 rounded-full border border-[#033327]/30 flex items-center justify-center transition-transform group-hover:scale-110">
+                              {icons.users}
                             </div>
                           </td>
                           <td className="py-4 px-4">
@@ -692,30 +462,32 @@ export default function AdminFacultyDirectoryPage() {
                                 <p className="font-serif text-[14px] font-bold text-[#033327] truncate">
                                   {person.name}
                                 </p>
-                                <p className="text-[10px] text-gray-500 truncate">
-                                  {person.role}
-                                </p>
+                                {person.location && (
+                                  <p className="text-[10px] text-gray-500 truncate">
+                                    {person.location}
+                                  </p>
+                                )}
                               </div>
                             </div>
                           </td>
                           <td className="py-4 px-4 text-[12px] font-medium text-gray-700">
-                            {person.dept}
+                            {person.profession}
+                          </td>
+                          <td className="py-4 px-4 text-[12px] font-medium text-gray-700">
+                            {person.company || "—"}
                           </td>
                           <td className="py-4 px-4 text-[12px] font-serif font-bold text-gray-700">
                             {person.year}
                           </td>
                           <td className="py-4 px-4">
                             <span
-                              className={`px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-widest whitespace-nowrap
-                              ${
-                                person.status === "PERMANENT"
-                                  ? "bg-[#c6ebd4] text-[#033327]"
-                                  : person.status === "PROBATION"
-                                    ? "bg-[#ffe4b3] text-[#a36b00]"
-                                    : "bg-[#e5e1d8] text-gray-600"
+                              className={`px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-widest whitespace-nowrap ${
+                                person.featured
+                                  ? "bg-[#ffe4b3] text-[#a36b00]"
+                                  : "bg-[#e5e1d8] text-gray-600"
                               }`}
                             >
-                              {person.status}
+                              {person.featured ? "FEATURED" : "STANDARD"}
                             </span>
                           </td>
                           <td className="py-4 px-6">
@@ -727,14 +499,14 @@ export default function AdminFacultyDirectoryPage() {
                                 {icons.eye}
                               </button>
                               <button
-                                onClick={() => editFaculty(person)}
+                                onClick={() => editAlumni(person)}
                                 className="hover:text-[#033327] transition-colors"
                                 title="Edit Record"
                               >
                                 {icons.edit}
                               </button>
                               <button
-                                onClick={() => deleteFaculty(person)}
+                                onClick={() => deleteAlumni(person)}
                                 className="hover:text-red-600 transition-colors"
                                 title="Delete Record"
                               >
@@ -752,8 +524,8 @@ export default function AdminFacultyDirectoryPage() {
               {/* Pagination */}
               <div className="bg-[#fcfbfa] border-t border-[#e5e1d8] px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-[10px] font-bold text-gray-500">
-                  Showing {filteredFaculty.length > 0 ? 1 : 0}-
-                  {filteredFaculty.length} of {faculty.length} records
+                  Showing {filteredAlumni.length > 0 ? 1 : 0}-
+                  {filteredAlumni.length} of {alumni.length} records
                 </p>
                 <div className="flex items-center gap-1">
                   <button

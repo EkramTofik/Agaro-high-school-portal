@@ -20,20 +20,33 @@ export default function AdminProfilePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    api
-      .get("/users/me")
-      .then((res) => {
-        const me = res.data?.data?.data ?? res.data?.data?.user ?? res.data?.data;
+    let ignore = false;
+
+    async function fetchMe() {
+      setLoading(true);
+      try {
+        const res = await api.get("/users/me");
+        if (ignore) return;
+        const me =
+          res.data?.data?.data ?? res.data?.data?.user ?? res.data?.data;
         if (me) {
           setProfile({ fullName: me.fullName || "", email: me.email || "" });
           setUser?.(me);
         }
-      })
-      .catch((e) => {
-        setError(e.response?.data?.message || "Could not load your profile.");
-      })
-      .finally(() => setLoading(false));
+      } catch (e) {
+        if (!ignore) {
+          setError(e.response?.data?.message || "Could not load your profile.");
+        }
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+
+    fetchMe();
+
+    return () => {
+      ignore = true;
+    };
   }, [setUser]);
 
   const saveProfile = async (event) => {
@@ -92,7 +105,11 @@ export default function AdminProfilePage() {
       if (res.data?.data?.user) {
         setUser(res.data.data.user);
       }
-      setPasswordForm({ currentPassword: "", password: "", passwordConfirm: "" });
+      setPasswordForm({
+        currentPassword: "",
+        password: "",
+        passwordConfirm: "",
+      });
       setMessage("Password updated successfully.");
     } catch (e) {
       setError(e.response?.data?.message || "Could not update password.");
@@ -102,14 +119,14 @@ export default function AdminProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-sm text-gray-500">Loading profile…</div>
-    );
+    return <div className="p-8 text-sm text-gray-500">Loading profile…</div>;
   }
 
   return (
     <div className="mx-auto max-w-3xl p-8 text-[#1a1a1a]">
-      <h1 className="font-serif text-3xl font-bold text-[#033327]">My Profile</h1>
+      <h1 className="font-serif text-3xl font-bold text-[#033327]">
+        My Profile
+      </h1>
       <p className="mt-2 text-sm text-gray-500">
         Update your administrator account details and password.
       </p>
@@ -129,14 +146,19 @@ export default function AdminProfilePage() {
         onSubmit={saveProfile}
         className="mt-8 rounded-2xl border border-[#e5e1d8] bg-white p-6"
       >
-        <h2 className="font-serif text-xl font-bold text-[#033327]">Account details</h2>
+        <h2 className="font-serif text-xl font-bold text-[#033327]">
+          Account details
+        </h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="text-[11px] font-bold text-gray-600 sm:col-span-2">
             Full name
             <input
               value={profile.fullName}
               onChange={(e) =>
-                setProfile((current) => ({ ...current, fullName: e.target.value }))
+                setProfile((current) => ({
+                  ...current,
+                  fullName: e.target.value,
+                }))
               }
               className="mt-1 w-full rounded-lg border border-[#e5e1d8] px-3 py-2 text-sm font-normal outline-none focus:border-[#033327]"
             />
@@ -153,7 +175,10 @@ export default function AdminProfilePage() {
             />
           </label>
           <div className="rounded-lg bg-[#FAF8F5] p-3 text-xs text-gray-500 sm:col-span-2">
-            Role: <span className="font-bold text-[#033327]">{user?.role || "admin"}</span>
+            Role:{" "}
+            <span className="font-bold text-[#033327]">
+              {user?.role || "admin"}
+            </span>
           </div>
         </div>
         <div className="mt-5 flex justify-end">
@@ -171,7 +196,9 @@ export default function AdminProfilePage() {
         onSubmit={savePassword}
         className="mt-6 rounded-2xl border border-[#e5e1d8] bg-white p-6"
       >
-        <h2 className="font-serif text-xl font-bold text-[#033327]">Change password</h2>
+        <h2 className="font-serif text-xl font-bold text-[#033327]">
+          Change password
+        </h2>
         <div className="mt-5 grid gap-4">
           <label className="text-[11px] font-bold text-gray-600">
             Current password

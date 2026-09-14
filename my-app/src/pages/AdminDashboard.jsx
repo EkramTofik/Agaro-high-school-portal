@@ -79,12 +79,12 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-7 px-8 py-7">
-      <div className="relative overflow-hidden rounded-2xl bg-[#033327] px-8 py-8">
+    <div className="space-y-5 px-4 py-5 sm:space-y-7 sm:px-6 sm:py-7 lg:px-8">
+      <div className="relative overflow-hidden rounded-2xl bg-[#033327] px-5 py-6 sm:px-8 sm:py-8">
         <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.25em] text-[#FFDEA4]/60">
           The Living Archive
         </p>
-        <h2 className="mb-3 font-serif text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-3 font-serif text-xl font-bold text-white sm:text-2xl md:text-3xl">
           Welcome, {user?.fullName || "Administrator"}.
         </h2>
         <p className="max-w-xl text-[12px] leading-relaxed text-white/55">
@@ -97,13 +97,13 @@ export default function AdminDashboard() {
         <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>
       )}
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
         {(loading ? [] : stats).map((stat) => (
           <button
             key={stat.label}
             type="button"
             onClick={() => navigate(stat.route)}
-            className="rounded-xl border border-[#e5e1d8] bg-white p-5 text-left transition hover:border-[#033327]/30 hover:shadow-sm"
+            className="rounded-xl border border-[#e5e1d8] bg-white p-4 text-left transition hover:border-[#033327]/30 hover:shadow-sm sm:p-5"
           >
             <p className="font-serif text-2xl font-bold text-[#033327]">
               {stat.value}
@@ -124,13 +124,13 @@ export default function AdminDashboard() {
         <h3 className="mb-4 font-serif text-lg font-bold text-[#1a1a1a]">
           Quick Actions
         </h3>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {quickActions.map(({ label, route }) => (
             <button
               key={label}
               type="button"
               onClick={() => navigate(route)}
-              className="rounded-xl border border-[#e5e1d8] bg-white p-5 text-center text-[11px] font-bold uppercase tracking-wider text-gray-600 transition hover:border-[#033327]/30 hover:text-[#033327]"
+              className="rounded-xl border border-[#e5e1d8] bg-white p-4 text-center text-[11px] font-bold uppercase tracking-wider text-gray-600 transition hover:border-[#033327]/30 hover:text-[#033327] sm:p-5"
             >
               {label}
             </button>

@@ -167,11 +167,14 @@ export default function AchievementsPage() {
   }, []);
 
   useEffect(() => {
-    setHonorsLoading(true);
-    setHonorsError("");
-    api
-      .get("/honorRoll", { params: { sort: "rank" } })
-      .then((res) => {
+    let ignore = false;
+
+    async function fetchHonors() {
+      setHonorsLoading(true);
+      setHonorsError("");
+      try {
+        const res = await api.get("/honorRoll", { params: { sort: "rank" } });
+        if (ignore) return;
         const payload = res.data?.data?.data ?? res.data?.data ?? [];
         const items = (Array.isArray(payload) ? payload : [payload])
           .filter(Boolean)
@@ -184,12 +187,21 @@ export default function AchievementsPage() {
             icon: honorIcons[index % honorIcons.length],
           }));
         setHonorsList(items);
-      })
-      .catch(() => {
-        setHonorsList([]);
-        setHonorsError("Could not load institutional honors.");
-      })
-      .finally(() => setHonorsLoading(false));
+      } catch {
+        if (!ignore) {
+          setHonorsList([]);
+          setHonorsError("Could not load institutional honors.");
+        }
+      } finally {
+        if (!ignore) setHonorsLoading(false);
+      }
+    }
+
+    fetchHonors();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return (

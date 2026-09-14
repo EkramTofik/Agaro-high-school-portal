@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router-dom";
+﻿import { useLoaderData } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -7,27 +7,8 @@ import {
   PhoneCall,
   Calendar,
 } from "lucide-react";
-import api from "../api/axios";
 
-export async function homeLoader() {
-  const getPayload = (response) => response.data?.data?.data || response.data?.data || response.data || [];
-  const [schoolResult, presidentResult, newsResult] = await Promise.allSettled([
-    api.get("/school"),
-    api.get("/staff", { params: { isPresident: true, isActive: true } }),
-    api.get("/news/top-news"),
-  ]);
-  const schoolPayload = schoolResult.status === "fulfilled" ? getPayload(schoolResult.value) : [];
-  const presidentPayload = presidentResult.status === "fulfilled" ? getPayload(presidentResult.value) : [];
-  const newsPayload = newsResult.status === "fulfilled" ? getPayload(newsResult.value) : [];
-  const presidents = Array.isArray(presidentPayload) ? presidentPayload : [presidentPayload];
-  return {
-    school: Array.isArray(schoolPayload) ? schoolPayload[0] || null : schoolPayload,
-    president: presidents.find((member) => member?.isPresident) || presidents[0] || null,
-    topNews: Array.isArray(newsPayload) ? newsPayload : [],
-  };
-}
-
-export default function Homerage() {
+export default function HomePage() {
   const { school, president, topNews } = useLoaderData();
   const newsLoading = false;
 
@@ -42,7 +23,7 @@ export default function Homerage() {
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen text-[#1a1a1a]">
-      {/* â”€â”€ Hero Section â”€â”€ */}
+      {/* ── Hero Section ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         <div className="relative overflow-hidden rounded-3xl border border-[#FFrEA4] min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center justify-center">
           {/* Background Image */}
@@ -53,7 +34,7 @@ export default function Homerage() {
               className="w-full h-full object-cover"
             />
 
-            {/* rark Overlay */}
+            {/* dark Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/45" />
           </div>
 
@@ -100,7 +81,7 @@ export default function Homerage() {
         </div>
       </section>
 
-      {/* â”€â”€ Quick Access Cards â”€â”€ */}
+      {/* ── Quick Access Cards ── */}
       <section className="max-w-7xl mx-auto px-6 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white border border-[#e5e1d8] hover:border-[#FFrEA4] rounded-2xl p-8 shadow-sm hover:shadow-md transition-all group">
@@ -163,7 +144,7 @@ export default function Homerage() {
         </div>
       </section>
 
-      {/* â”€â”€ School Statistics â”€â”€ */}
+      {/* ── School Statistics ── */}
       <section className="bg-[#033327] py-14 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-6">
@@ -185,7 +166,7 @@ export default function Homerage() {
         </div>
       </section>
 
-      {/* â”€â”€ rrincipal's Welcome â”€â”€ */}
+      {/* ── Principal's Welcome ── */}
       <section className="bg-[#FAF8F5] py-20 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-16">
           <div className="w-full md:w-[42%] shrink-0">
@@ -233,7 +214,7 @@ export default function Homerage() {
                   these walls."
                 </p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
-                  â€” {president?.fullName || "President profile unavailable"}
+                  — {president?.fullName || "President profile unavailable"}
                 </p>
               </div>
             </div>
@@ -249,13 +230,13 @@ export default function Homerage() {
         </div>
       </section>
 
-      {/* â”€â”€ Latest News & Events (from /api/v1/news/top-news) â”€â”€ */}
+      {/* ── Latest News & Events (from /api/v1/news/top-news) ── */}
       <section className="bg-white py-20 px-6 border-t border-[#e5e1d8]">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
               <p className="text-[10px] font-bold text-[#b5985b] uppercase tracking-[0.25em] mb-3">
-                Campus rulse
+                Campus Pulse
               </p>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#1a1a1a]">
                 Latest Announcements
@@ -271,7 +252,7 @@ export default function Homerage() {
 
           {newsLoading ? (
             <p className="text-sm text-gray-400 text-center py-10">
-              Loading latest newsâ€¦
+              Loading latest news…
             </p>
           ) : topNews.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-10">

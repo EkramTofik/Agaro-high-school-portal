@@ -1,177 +1,664 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import api from '../api/axios'
-import AdminFormModal from '../components/AdminFormModal'
-import AdminConfirmModal from '../components/AdminConfirmModal'
-import AdminFilters, { matchesSearch, matchesFilter } from '../components/AdminFilters'
+import { useState, useEffect, useMemo } from "react";
+import api from "../api/axios";
+import AdminFormModal from "../components/AdminFormModal";
+import AdminConfirmModal from "../components/AdminConfirmModal";
+import AdminFilters, {
+  matchesSearch,
+  matchesFilter,
+} from "../components/AdminFilters";
 
 /* ── Inline SVG icons ─── */
 const icons = {
-  search: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
-  bell: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
-  grid: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>,
-  archive: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="5" rx="2"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg>,
-  users: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-  doc: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
-  globe: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
-  alumni: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>,
-  gallery: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
-  megaphone: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 11 18-5v12L3 13"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>,
-  settings: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-  support: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
-  school: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#033327" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>,
-  edit: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>,
-  userPlus: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
-  mail: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
-  calendar: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
-  history: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b5985b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
-  speaker: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b5985b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>,
-  palette: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b5985b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="5.5" r="2.5"/><circle cx="8.5" cy="8.5" r="2.5"/><circle cx="8.5" cy="15.5" r="2.5"/><circle cx="13.5" cy="18.5" r="2.5"/><path d="M16 12a4 4 0 0 0 4-4"/><path d="M16 12a4 4 0 0 1 4 4"/></svg>,
-}
-
+  search: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+  ),
+  bell: (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  ),
+  grid: (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+    </svg>
+  ),
+  archive: (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="4" width="20" height="5" rx="2" />
+      <path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9" />
+      <path d="M10 13h4" />
+    </svg>
+  ),
+  users: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  doc: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  ),
+  globe: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  ),
+  alumni: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+    </svg>
+  ),
+  gallery: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </svg>
+  ),
+  megaphone: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m3 11 18-5v12L3 13" />
+      <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+    </svg>
+  ),
+  settings: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  ),
+  support: (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  ),
+  school: (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#033327"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+    </svg>
+  ),
+  edit: (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+    </svg>
+  ),
+  userPlus: (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" y1="8" x2="19" y2="14" />
+      <line x1="22" y1="11" x2="16" y2="11" />
+    </svg>
+  ),
+  mail: (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  ),
+  calendar: (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  ),
+  history: (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#b5985b"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
+    </svg>
+  ),
+  speaker: (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#b5985b"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  ),
+  palette: (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#b5985b"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="13.5" cy="5.5" r="2.5" />
+      <circle cx="8.5" cy="8.5" r="2.5" />
+      <circle cx="8.5" cy="15.5" r="2.5" />
+      <circle cx="13.5" cy="18.5" r="2.5" />
+      <path d="M16 12a4 4 0 0 0 4-4" />
+      <path d="M16 12a4 4 0 0 1 4 4" />
+    </svg>
+  ),
+};
 
 export default function AdminStudentLifePage() {
-  const [clubs, setClubs] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [formClub, setFormClub] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(null)
-  const [search, setSearch] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('')
-  const [featuredFilter, setFeaturedFilter] = useState('')
+  const [clubs, setClubs] = useState([]);
+  const [councilMembers, setCouncilMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [formClub, setFormClub] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [featuredFilter, setFeaturedFilter] = useState("");
+
   const loadClubs = () => {
-    setLoading(true); setError('')
-    return api.get('/club')
+    setLoading(true);
+    setError("");
+    return api
+      .get("/club")
       .then((res) => {
-        const payload = res.data?.data?.data ?? res.data?.data ?? []
-        setClubs((Array.isArray(payload) ? payload : [payload]).filter(Boolean).map((club) => ({
-          ...club,
-          name: club.name || 'Unnamed club',
-          founded: club.founded || club.createdAt?.slice(0, 4) || '—',
-          desc: club.description || 'No description provided.',
-          lead: club.coordinatorName || 'Unassigned',
-          role: club.category || 'Coordinator',
-          initials: (club.name || 'C').slice(0, 2).toUpperCase(),
-        })))
+        const payload = res.data?.data?.data ?? res.data?.data ?? [];
+        setClubs(
+          (Array.isArray(payload) ? payload : [payload])
+            .filter(Boolean)
+            .map((club) => ({
+              ...club,
+              name: club.name || "Unnamed club",
+              founded: club.founded || club.createdAt?.slice(0, 4) || "—",
+              desc: club.description || "No description provided.",
+              lead: club.coordinatorName || "Unassigned",
+              role: club.category || "Coordinator",
+              initials: (club.name || "C").slice(0, 2).toUpperCase(),
+            })),
+        );
       })
-      .catch(() => setError('Could not load student-life records.'))
-      .finally(() => setLoading(false))
-  }
-  useEffect(() => { loadClubs() }, [])
-  const addClub = () => setFormClub({})
-  const editClub = (club) => setFormClub(club)
+      .catch(() => setError("Could not load student-life records."))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchData() {
+      setLoading(true);
+      setError("");
+      try {
+        const [clubsRes, councilRes] = await Promise.allSettled([
+          api.get("/club"),
+          api.get("/studentVoice"),
+        ]);
+
+        if (ignore) return;
+
+        // Clubs
+        if (clubsRes.status === "fulfilled") {
+          const payload =
+            clubsRes.value.data?.data?.data ?? clubsRes.value.data?.data ?? [];
+          setClubs(
+            (Array.isArray(payload) ? payload : [payload])
+              .filter(Boolean)
+              .map((club) => ({
+                ...club,
+                name: club.name || "Unnamed club",
+                founded: club.founded || club.createdAt?.slice(0, 4) || "—",
+                desc: club.description || "No description provided.",
+                lead: club.coordinatorName || "Unassigned",
+                role: club.category || "Coordinator",
+                initials: (club.name || "C").slice(0, 2).toUpperCase(),
+              })),
+          );
+        } else {
+          setError("Could not load student-life records.");
+        }
+
+        // Student council (president / vice president)
+        if (councilRes.status === "fulfilled") {
+          const payload =
+            councilRes.value.data?.data?.data ??
+            councilRes.value.data?.data ??
+            [];
+          const items = (Array.isArray(payload) ? payload : [payload]).filter(
+            Boolean,
+          );
+          setCouncilMembers(items);
+        } else {
+          setCouncilMembers([]);
+        }
+      } catch {
+        if (!ignore) setError("Could not load student-life records.");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const addClub = () => setFormClub({});
+  const editClub = (club) => setFormClub(club);
+
   const saveClub = async (values) => {
-    setSaving(true)
-    try { await (formClub?._id ? api.patch(`/club/${formClub._id}`, values) : api.post('/club', values)); setFormClub(null); await loadClubs() }
-    catch (e) { setError(e.response?.data?.message || 'Could not save club.') }
-    finally { setSaving(false) }
-  }
+    setSaving(true);
+    try {
+      await (formClub?._id
+        ? api.patch(`/club/${formClub._id}`, values)
+        : api.post("/club", values));
+      setFormClub(null);
+      await loadClubs();
+    } catch (e) {
+      setError(e.response?.data?.message || "Could not save club.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const deleteClub = async (club) => {
-    setConfirmDelete({ message: `Delete ${club.name}?`, action: async () => { try { await api.delete(`/club/${club._id}`); await loadClubs() } catch (e) { setError(e.response?.data?.message || 'Could not delete club.') } } })
-  }
+    setConfirmDelete({
+      message: `Delete ${club.name}?`,
+      action: async () => {
+        try {
+          await api.delete(`/club/${club._id}`);
+          await loadClubs();
+        } catch (e) {
+          setError(e.response?.data?.message || "Could not delete club.");
+        }
+      },
+    });
+  };
 
   const categoryOptions = useMemo(() => {
-    const cats = [...new Set(clubs.map((c) => c.category || c.role).filter(Boolean))]
-    return [{ value: '', label: 'All categories' }, ...cats.map((c) => ({ value: c, label: c }))]
-  }, [clubs])
+    const cats = [
+      ...new Set(clubs.map((c) => c.category || c.role).filter(Boolean)),
+    ];
+    return [
+      { value: "", label: "All categories" },
+      ...cats.map((c) => ({ value: c, label: c })),
+    ];
+  }, [clubs]);
 
   const filteredClubs = useMemo(() => {
     return clubs.filter((club) => {
-      if (!matchesSearch(club, search, ['name', 'desc', 'lead', 'category', 'role'])) return false
-      if (categoryFilter && (club.category || club.role) !== categoryFilter) return false
-      if (!matchesFilter(club, 'isFeatured', featuredFilter)) return false
-      return true
-    })
-  }, [clubs, search, categoryFilter, featuredFilter])
+      if (
+        !matchesSearch(club, search, [
+          "name",
+          "desc",
+          "lead",
+          "category",
+          "role",
+        ])
+      )
+        return false;
+      if (categoryFilter && (club.category || club.role) !== categoryFilter)
+        return false;
+      if (!matchesFilter(club, "isFeatured", featuredFilter)) return false;
+      return true;
+    });
+  }, [clubs, search, categoryFilter, featuredFilter]);
+
+  // Derive president + vice president from the loaded council members.
+  // Falls back gracefully if not present.
+  const president =
+    councilMembers.find(
+      (m) =>
+        String(m.role || "")
+          .toLowerCase()
+          .includes("president") &&
+        !String(m.role || "")
+          .toLowerCase()
+          .includes("vice"),
+    ) || null;
+
+  const vicePresident =
+    councilMembers.find((m) =>
+      String(m.role || "")
+        .toLowerCase()
+        .includes("vice president"),
+    ) ||
+    councilMembers.find(
+      (m) =>
+        String(m.role || "")
+          .toLowerCase()
+          .includes("vice") &&
+        String(m.role || "")
+          .toLowerCase()
+          .includes("president"),
+    ) ||
+    null;
+
+  const renderCouncilCard = (member, label) => {
+    if (!member) return null;
+    return (
+      <div className="bg-white border border-[#e5e1d8] rounded-lg p-4 flex items-center gap-4">
+        <img
+          src={member.imageUrl}
+          alt={member.fullName || label}
+          className="w-14 h-14 sm:w-16 sm:h-16 rounded object-cover shrink-0"
+        />
+        <div>
+          <p className="text-[8px] font-bold text-[#b5985b] uppercase tracking-widest mb-1">
+            {label}
+          </p>
+          <p className="font-serif text-lg font-bold text-[#1a1a1a] mb-2">
+            {member.fullName || "—"}
+          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-gray-500">
+            {member.email && (
+              <span className="flex items-center gap-1">
+                {icons.mail} {member.email}
+              </span>
+            )}
+            {member.grade && (
+              <span className="flex items-center gap-1">
+                {icons.calendar} {member.grade}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="bg-[#FAF8F5]">
-      {formClub !== null && <AdminFormModal title={formClub._id ? 'Edit club' : 'Add club'} initialValues={{ category: 'Student Life', ...formClub }} onClose={() => setFormClub(null)} onSubmit={saveClub} submitting={saving} fields={[
-        { name: 'name', label: 'Club name', required: true },
-        { name: 'category', label: 'Category' },
-        { name: 'coordinatorName', label: 'Coordinator' },
-        { name: 'imageUrl', label: 'Image URL', type: 'url' },
-        { name: 'description', label: 'Description', type: 'textarea' },
-        { name: 'isFeatured', label: 'Featured club', type: 'checkbox', defaultValue: false }
-      ]} />}
-      {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
+      {formClub !== null && (
+        <AdminFormModal
+          title={formClub._id ? "Edit club" : "Add club"}
+          initialValues={{ category: "Student Life", ...formClub }}
+          onClose={() => setFormClub(null)}
+          onSubmit={saveClub}
+          submitting={saving}
+          fields={[
+            { name: "name", label: "Club name", required: true },
+            { name: "category", label: "Category" },
+            { name: "coordinatorName", label: "Coordinator" },
+            { name: "imageUrl", label: "Image URL", type: "url" },
+            { name: "description", label: "Description", type: "textarea" },
+            {
+              name: "isFeatured",
+              label: "Featured club",
+              type: "checkbox",
+              defaultValue: false,
+            },
+          ]}
+        />
+      )}
+      {confirmDelete && (
+        <AdminConfirmModal
+          message={confirmDelete.message}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={async () => {
+            await confirmDelete.action();
+            setConfirmDelete(null);
+          }}
+        />
+      )}
 
-{/* ── Main ──────────────────────────────────────────── */}
+      {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5] relative">
-
         {/* Scrollable content */}
-        <div className="px-10 py-10 pb-24">
+        <div className="px-4 py-6 pb-20 sm:px-6 sm:py-8 md:px-10 md:py-10 md:pb-24">
           <div className="max-w-5xl mx-auto">
-
             {/* Header */}
-            <div className="mb-10">
-              <h1 className="font-serif text-3xl font-bold text-[#033327] mb-2">Student Life Management</h1>
+            <div className="mb-6 sm:mb-10">
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#033327] mb-2">
+                Student Life Management
+              </h1>
               <p className="text-sm text-gray-600 max-w-2xl">
-                Updating the pulse of our institution. Manage the leadership and community organisms that define the Agaro student experience.
+                Updating the pulse of our institution. Manage the leadership and
+                community organisms that define the Agaro student experience.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
-
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 mb-6 lg:mb-10">
               {/* Student Council Section */}
               <div>
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
                   <div className="flex items-center gap-2 text-[#033327]">
                     {icons.users}
-                    <h2 className="font-serif text-xl font-bold">Student Council</h2>
+                    <h2 className="font-serif text-xl font-bold">
+                      Student Council
+                    </h2>
                   </div>
-                  <button onClick={addClub} className="flex items-center gap-1.5 text-[9px] font-bold text-[#033327] uppercase tracking-wider hover:text-[#b5985b]">
+                  <button
+                    onClick={addClub}
+                    className="flex items-center gap-1.5 text-[9px] font-bold text-[#033327] uppercase tracking-wider hover:text-[#b5985b]"
+                  >
                     {icons.edit} MANAGE ROLES
                   </button>
                 </div>
 
                 <div className="pl-4 border-l-2 border-[#b5985b] mb-8">
                   <p className="text-[11px] text-gray-500 italic leading-relaxed">
-                    The Student Council serves as the representative voice of the student body, fostering communication between the administration and students.
+                    The Student Council serves as the representative voice of
+                    the student body, fostering communication between the
+                    administration and students.
                   </p>
                 </div>
 
                 <div className="space-y-4">
-                  {/* President */}
-                  <div className="bg-white border border-[#e5e1d8] rounded-lg p-4 flex items-center gap-4">
-                    <img src={undefined} alt="President" className="w-16 h-16 rounded object-cover" />
-                    <div>
-                      <p className="text-[8px] font-bold text-[#b5985b] uppercase tracking-widest mb-1">PRESIDENT</p>
-                      <p className="font-serif text-lg font-bold text-[#1a1a1a] mb-2">Elias Vance</p>
-                      <div className="flex items-center gap-4 text-[10px] text-gray-500">
-                        <span className="flex items-center gap-1">{icons.mail} e.vance@agaro.edu</span>
-                        <span className="flex items-center gap-1">{icons.calendar} Senior '25</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Vice President */}
-                  <div className="bg-white border border-[#e5e1d8] rounded-lg p-4 flex items-center gap-4">
-                    <img src={undefined} alt="VP" className="w-16 h-16 rounded object-cover" />
-                    <div>
-                      <p className="text-[8px] font-bold text-[#b5985b] uppercase tracking-widest mb-1">VICE PRESIDENT</p>
-                      <p className="font-serif text-lg font-bold text-[#1a1a1a] mb-2">Sofia Martinez</p>
-                      <div className="flex items-center gap-4 text-[10px] text-gray-500">
-                        <span className="flex items-center gap-1">{icons.mail} s.martinez@agaro.edu</span>
-                        <span className="flex items-center gap-1">{icons.calendar} Senior '25</span>
-                      </div>
-                    </div>
-                  </div>
+                  {president || vicePresident ? (
+                    <>
+                      {renderCouncilCard(president, "PRESIDENT")}
+                      {renderCouncilCard(vicePresident, "VICE PRESIDENT")}
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No council members have been published yet.
+                    </p>
+                  )}
 
                   {/* Appoint New */}
                   <button className="w-full border border-dashed border-[#b5985b]/40 bg-[#f4f1ec] rounded-lg p-5 flex flex-col items-center justify-center gap-2 hover:bg-[#e5e1d8]/50 transition-colors">
                     <span className="text-gray-400">{icons.userPlus}</span>
-                    <span className="text-[10px] font-semibold text-gray-500">Appoint New Council Member</span>
+                    <span className="text-[10px] font-semibold text-gray-500">
+                      Appoint New Council Member
+                    </span>
                   </button>
                 </div>
               </div>
 
               {/* Clubs & Orgs Section */}
-              <div className="bg-[#f0ede8] rounded-xl p-6 border border-[#e5e1d8]">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-[#f0ede8] rounded-xl p-4 sm:p-6 border border-[#e5e1d8]">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
                   <div className="flex items-center gap-2 text-[#033327]">
                     {icons.users}
-                    <h2 className="font-serif text-xl font-bold">Clubs & Orgs</h2>
+                    <h2 className="font-serif text-xl font-bold">
+                      Clubs & Orgs
+                    </h2>
                   </div>
                   <button className="flex items-center gap-1.5 text-[9px] font-bold text-[#033327] uppercase tracking-wider hover:text-[#b5985b]">
                     <span className="text-sm leading-none">+</span> NEW CLUB
@@ -185,21 +672,21 @@ export default function AdminStudentLifePage() {
                     searchPlaceholder="Search clubs…"
                     filters={[
                       {
-                        key: 'category',
-                        label: 'Category',
+                        key: "category",
+                        label: "Category",
                         value: categoryFilter,
                         onChange: setCategoryFilter,
                         options: categoryOptions,
                       },
                       {
-                        key: 'isFeatured',
-                        label: 'Featured',
+                        key: "isFeatured",
+                        label: "Featured",
                         value: featuredFilter,
                         onChange: setFeaturedFilter,
                         options: [
-                          { value: '', label: 'All' },
-                          { value: 'true', label: 'Featured' },
-                          { value: 'false', label: 'Not featured' },
+                          { value: "", label: "All" },
+                          { value: "true", label: "Featured" },
+                          { value: "false", label: "Not featured" },
                         ],
                       },
                     ]}
@@ -207,69 +694,110 @@ export default function AdminStudentLifePage() {
                     totalCount={clubs.length}
                   />
                   {loading || error || filteredClubs.length === 0 ? (
-                    <p className={error ? "text-sm text-red-500" : "text-sm text-gray-500"}>
+                    <p
+                      className={
+                        error ? "text-sm text-red-500" : "text-sm text-gray-500"
+                      }
+                    >
                       {loading ? "Loading clubs…" : error || "No clubs found."}
                     </p>
-                  ) : filteredClubs.map((club, i) => (
-                    <div key={club._id || i} className="bg-white border border-[#e5e1d8] rounded-lg p-5 hover:shadow-sm transition-shadow">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="font-serif text-lg font-bold text-[#1a1a1a] mb-1">{club.name}</h3>
-                          <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{club.founded}</p>
-                        </div>
-                        <div className="w-8 h-8 rounded-full border border-[#b5985b] flex items-center justify-center shrink-0">
-                          {club.icon}
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-gray-600 leading-relaxed mb-5">
-                        {club.desc}
-                      </p>
-                      <div className="flex items-center justify-between pt-4 border-t border-[#f0ede8]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-full bg-[#e5e1d8] text-[#033327] text-[9px] font-bold flex items-center justify-center">
-                            {club.initials}
-                          </div>
+                  ) : (
+                    filteredClubs.map((club, i) => (
+                      <div
+                        key={club._id || i}
+                        className="bg-white border border-[#e5e1d8] rounded-lg p-4 sm:p-5 hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-4">
                           <div>
-                            <p className="text-[10px] font-bold text-[#1a1a1a] leading-tight">{club.lead}</p>
-                            <p className="text-[8px] text-gray-500">{club.role}</p>
+                            <h3 className="font-serif text-lg font-bold text-[#1a1a1a] mb-1">
+                              {club.name}
+                            </h3>
+                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
+                              {club.founded}
+                            </p>
+                          </div>
+                          <div className="w-8 h-8 rounded-full border border-[#b5985b] flex items-center justify-center shrink-0">
+                            {club.icon}
                           </div>
                         </div>
-                        <button onClick={() => editClub(club)} className="px-3 py-1.5 bg-[#033327] text-white text-[8px] font-bold uppercase tracking-wider rounded hover:bg-[#0d4a3b]">
-                          EDIT DETAILS
-                        </button>
-                        <button onClick={() => deleteClub(club)} className="text-[10px] text-red-600 ml-2">DELETE</button>
+                        <p className="text-[11px] text-gray-600 leading-relaxed mb-5">
+                          {club.desc}
+                        </p>
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-[#f0ede8]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-7 h-7 rounded-full bg-[#e5e1d8] text-[#033327] text-[9px] font-bold flex items-center justify-center shrink-0">
+                              {club.initials}
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-bold text-[#1a1a1a] leading-tight">
+                                {club.lead}
+                              </p>
+                              <p className="text-[8px] text-gray-500">
+                                {club.role}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => editClub(club)}
+                            className="px-3 py-1.5 bg-[#033327] text-white text-[8px] font-bold uppercase tracking-wider rounded hover:bg-[#0d4a3b]"
+                          >
+                            EDIT DETAILS
+                          </button>
+                          <button
+                            onClick={() => deleteClub(club)}
+                            className="text-[10px] text-red-600"
+                          >
+                            DELETE
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
-
             </div>
 
             {/* Bottom Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               {[
-                { label: 'ACTIVE CLUBS', value: '24' },
-                { label: 'STUDENT PARTICIPATION', value: '88%' },
-                { label: 'SCHEDULED EVENTS', value: '12' },
-                { label: 'COUNCIL TERMS', value: '2025' }
-              ].map(stat => (
-                <div key={stat.label} className="bg-transparent border border-[#e5e1d8] rounded-lg p-6 flex flex-col items-center justify-center text-center">
-                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
-                  <p className="font-serif text-3xl font-bold text-[#033327]">{stat.value}</p>
+                { label: "ACTIVE CLUBS", value: "24" },
+                { label: "STUDENT PARTICIPATION", value: "88%" },
+                { label: "SCHEDULED EVENTS", value: "12" },
+                { label: "COUNCIL TERMS", value: "2025" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-transparent border border-[#e5e1d8] rounded-lg p-4 sm:p-6 flex flex-col items-center justify-center text-center"
+                >
+                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">
+                    {stat.label}
+                  </p>
+                  <p className="font-serif text-2xl sm:text-3xl font-bold text-[#033327]">
+                    {stat.value}
+                  </p>
                 </div>
               ))}
             </div>
-
           </div>
         </div>
 
         {/* Floating Action Button */}
-        <button className="absolute bottom-8 right-8 w-12 h-12 bg-[#b5985b] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#967d4a] hover:scale-105 transition-all">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <button className="absolute bottom-5 right-5 sm:bottom-8 sm:right-8 w-11 h-11 sm:w-12 sm:h-12 bg-[#b5985b] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#967d4a] hover:scale-105 transition-all">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
         </button>
-
       </main>
     </div>
-  )
+  );
 }

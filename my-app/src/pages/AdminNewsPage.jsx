@@ -2,7 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import api from "../api/axios";
 import AdminFormModal from "../components/AdminFormModal";
 import AdminConfirmModal from "../components/AdminConfirmModal";
-import AdminFilters, { matchesSearch, matchesFilter } from "../components/AdminFilters";
+import AdminFilters, {
+  matchesSearch,
+  matchesFilter,
+} from "../components/AdminFilters";
 
 /* ── Inline SVG icons ─── */
 const icons = {
@@ -295,7 +298,6 @@ const icons = {
   ),
 };
 
-
 export default function AdminNewsPage() {
   const [isUrgent, setIsUrgent] = useState(false);
   const [form, setForm] = useState({
@@ -317,9 +319,40 @@ export default function AdminNewsPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchNews() {
+      setNewsLoading(true);
+      setNewsError("");
+      try {
+        const res = await api.get("/news");
+        if (!ignore) {
+          const payload = res.data?.data?.data ?? res.data?.data ?? [];
+          setNews(Array.isArray(payload) ? payload : [payload]);
+        }
+      } catch {
+        if (!ignore) {
+          setNewsError("Could not load news records.");
+        }
+      } finally {
+        if (!ignore) {
+          setNewsLoading(false);
+        }
+      }
+    }
+
+    fetchNews();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const loadNews = () => {
     setNewsLoading(true);
-    api.get("/news")
+    api
+      .get("/news")
       .then((res) => {
         const payload = res.data?.data?.data ?? res.data?.data ?? [];
         setNews(Array.isArray(payload) ? payload : [payload]);
@@ -327,8 +360,6 @@ export default function AdminNewsPage() {
       .catch(() => setNewsError("Could not load news records."))
       .finally(() => setNewsLoading(false));
   };
-
-  useEffect(() => { loadNews(); }, []);
 
   const handlePublish = async () => {
     setError("");
@@ -345,7 +376,11 @@ export default function AdminNewsPage() {
     try {
       await api.post("/news", {
         title: form.title,
-        slug: form.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        slug: form.title
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, ""),
         category: form.category,
         body: form.body,
         isUrgent,
@@ -370,20 +405,49 @@ export default function AdminNewsPage() {
     setError("");
     setSuccess("");
   };
+
   const handleDeleteNews = async (item) => {
-    setConfirmDelete({ message: `Delete "${item.title}"?`, action: async () => { try { await api.delete(`/news/${item._id}`); loadNews(); } catch (err) { setError(err.response?.data?.message || "Failed to delete news."); } } });
+    setConfirmDelete({
+      message: `Delete "${item.title}"?`,
+      action: async () => {
+        try {
+          await api.delete(`/news/${item._id}`);
+          loadNews();
+        } catch (err) {
+          setError(err.response?.data?.message || "Failed to delete news.");
+        }
+      },
+    });
   };
+
   const handleEditNews = (item) => setEditingNews(item);
+
   const saveNews = async (values) => {
     setSavingNews(true);
-    try { await api.patch(`/news/${editingNews._id}`, { ...values, slug: values.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") }); setEditingNews(null); loadNews(); }
-    catch (err) { setError(err.response?.data?.message || "Failed to update news."); }
-    finally { setSavingNews(false); }
+    try {
+      await api.patch(`/news/${editingNews._id}`, {
+        ...values,
+        slug: values.title
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, ""),
+      });
+      setEditingNews(null);
+      loadNews();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update news.");
+    } finally {
+      setSavingNews(false);
+    }
   };
 
   const filteredNews = useMemo(() => {
     return news.filter((item) => {
-      if (!matchesSearch(item, search, ["title", "body", "summary", "category"])) return false;
+      if (
+        !matchesSearch(item, search, ["title", "body", "summary", "category"])
+      )
+        return false;
       if (!matchesFilter(item, "category", categoryFilter)) return false;
       if (!matchesFilter(item, "status", statusFilter)) return false;
       return true;
@@ -392,44 +456,103 @@ export default function AdminNewsPage() {
 
   return (
     <div className="bg-[#FAF8F5] text-[#1a1a1a]">
-      {editingNews && <AdminFormModal title="Edit news update" initialValues={editingNews} onClose={() => setEditingNews(null)} onSubmit={saveNews} submitting={savingNews} fields={[
-        { name: "title", label: "Headline", required: true },
-        { name: "category", label: "Category", type: "select", options: ["Academic", "Sports", "Cultural", "Meeting", "Event", "Other"] },
-        { name: "body", label: "Announcement content", required: true, type: "textarea" },
-        { name: "summary", label: "Summary", type: "textarea" },
-        { name: "imageUrl", label: "Image URL", type: "url" },
-        { name: "status", label: "Status", type: "select", options: ["draft", "published", "archived"] },
-        { name: "isUrgent", label: "Urgent announcement", type: "checkbox", defaultValue: false },
-        { name: "publishedAt", label: "Published at", type: "datetime-local", emptyValue: null }
-      ]} />}
-      {confirmDelete && <AdminConfirmModal message={confirmDelete.message} onCancel={() => setConfirmDelete(null)} onConfirm={async () => { await confirmDelete.action(); setConfirmDelete(null) }} />}
+      {editingNews && (
+        <AdminFormModal
+          title="Edit news update"
+          initialValues={editingNews}
+          onClose={() => setEditingNews(null)}
+          onSubmit={saveNews}
+          submitting={savingNews}
+          fields={[
+            { name: "title", label: "Headline", required: true },
+            {
+              name: "category",
+              label: "Category",
+              type: "select",
+              options: [
+                "Academic",
+                "Sports",
+                "Cultural",
+                "Meeting",
+                "Event",
+                "Other",
+              ],
+            },
+            {
+              name: "body",
+              label: "Announcement content",
+              required: true,
+              type: "textarea",
+            },
+            { name: "summary", label: "Summary", type: "textarea" },
+            { name: "imageUrl", label: "Image URL", type: "url" },
+            {
+              name: "status",
+              label: "Status",
+              type: "select",
+              options: ["draft", "published", "archived"],
+            },
+            {
+              name: "isUrgent",
+              label: "Urgent announcement",
+              type: "checkbox",
+              defaultValue: false,
+            },
+            {
+              name: "publishedAt",
+              label: "Published at",
+              type: "datetime-local",
+              emptyValue: null,
+            },
+          ]}
+        />
+      )}
+      {confirmDelete && (
+        <AdminConfirmModal
+          message={confirmDelete.message}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={async () => {
+            await confirmDelete.action();
+            setConfirmDelete(null);
+          }}
+        />
+      )}
 
-{/* ── Main ──────────────────────────────────────────── */}
+      {/* ── Main ──────────────────────────────────────────── */}
       <main className="bg-[#FAF8F5]">
         {/* Scrollable Content */}
-        <div className="px-12 py-12 pb-24">
-          <div className="max-w-3xl mx-auto">
+        <div className="px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-10 md:py-12 pb-16 sm:pb-20 md:pb-24">
+          <div className="max-w-3xl mx-auto w-full">
             {/* Header Section */}
-            <div className="text-center mb-10">
-              <div className="w-16 h-[2px] bg-[#b5985b]/30 mx-auto mb-6"></div>
-              <h1 className="font-serif text-[42px] font-bold text-[#033327] mb-2 leading-tight">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="w-12 sm:w-16 h-[2px] bg-[#b5985b]/30 mx-auto mb-4 sm:mb-6"></div>
+              <h1 className="font-serif text-[28px] sm:text-[36px] md:text-[42px] font-bold text-[#033327] mb-2 leading-tight px-2">
                 Create Announcement
               </h1>
-              <p className="text-[12px] text-gray-500 italic">
+              <p className="text-[11px] sm:text-[12px] text-gray-500 italic px-2">
                 Draft a new record for the Agaro High School Living Archive
               </p>
-              <p className={newsError ? "mt-3 text-xs text-red-500" : "mt-3 text-xs text-gray-500"}>
-                {newsLoading ? "Loading news records…" : newsError || `${filteredNews.length} of ${news.length} news records`}
+              <p
+                className={
+                  newsError
+                    ? "mt-2 sm:mt-3 text-xs text-red-500"
+                    : "mt-2 sm:mt-3 text-xs text-gray-500"
+                }
+              >
+                {newsLoading
+                  ? "Loading news records…"
+                  : newsError ||
+                    `${filteredNews.length} of ${news.length} news records`}
               </p>
-              <div className="w-16 h-[2px] bg-[#b5985b]/30 mx-auto mt-6"></div>
+              <div className="w-12 sm:w-16 h-[2px] bg-[#b5985b]/30 mx-auto mt-4 sm:mt-6"></div>
             </div>
 
             {/* Form Container */}
-            <div className="border border-[#e5e1d8] bg-transparent rounded-lg p-10">
+            <div className="border border-[#e5e1d8] bg-transparent rounded-lg p-4 sm:p-6 md:p-8 lg:p-10">
               {/* Category & Urgent Toggle */}
-              <div className="flex items-start gap-12 mb-8">
-                <div className="flex-1 max-w-sm">
-                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+              <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-8 md:gap-12 mb-6 sm:mb-8">
+                <div className="flex-1 w-full max-w-full sm:max-w-sm">
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 sm:mb-3">
                     NOTICE CATEGORY
                   </label>
                   <div className="relative">
@@ -457,7 +580,7 @@ export default function AdminNewsPage() {
                       <path d="m6 9 6 6 6-6" />
                     </svg>
                   </div>
-                  <div className="mt-8 space-y-2">
+                  <div className="mt-6 sm:mt-8 space-y-2">
                     <AdminFilters
                       search={search}
                       onSearchChange={setSearch}
@@ -495,19 +618,37 @@ export default function AdminNewsPage() {
                       totalCount={news.length}
                     />
                     {filteredNews.map((item) => (
-                      <div key={item._id} className="flex items-center justify-between bg-white border border-[#e5e1d8] rounded-md px-4 py-3">
-                        <span className="text-[12px] font-bold">{item.title}</span>
-                        <span className="flex gap-3 text-[10px]"><button onClick={() => handleEditNews(item)} className="text-[#033327]">Edit</button><button onClick={() => handleDeleteNews(item)} className="text-red-600">Delete</button></span>
+                      <div
+                        key={item._id}
+                        className="flex flex-col xs:flex-row sm:flex-row items-start sm:items-center justify-between gap-2 bg-white border border-[#e5e1d8] rounded-md px-3 sm:px-4 py-2.5 sm:py-3"
+                      >
+                        <span className="text-[12px] font-bold break-words pr-2">
+                          {item.title}
+                        </span>
+                        <span className="flex gap-3 text-[10px] shrink-0">
+                          <button
+                            onClick={() => handleEditNews(item)}
+                            className="text-[#033327]"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteNews(item)}
+                            className="text-red-600"
+                          >
+                            Delete
+                          </button>
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-7">
+                <div className="pt-0 sm:pt-7 w-full sm:w-auto">
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setIsUrgent(!isUrgent)}
-                      className={`w-10 h-5 rounded-full relative transition-colors ${isUrgent ? "bg-[#b5985b]" : "bg-[#e5e1d8]"}`}
+                      className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${isUrgent ? "bg-[#b5985b]" : "bg-[#e5e1d8]"}`}
                     >
                       <div
                         className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${isUrgent ? "translate-x-5" : ""}`}
@@ -527,19 +668,19 @@ export default function AdminNewsPage() {
 
               {/* Status messages */}
               {error && (
-                <div className="mb-6 p-3 rounded-md bg-red-50 border border-red-200 text-[12px] text-red-700 font-semibold">
+                <div className="mb-4 sm:mb-6 p-3 rounded-md bg-red-50 border border-red-200 text-[12px] text-red-700 font-semibold">
                   {error}
                 </div>
               )}
               {success && (
-                <div className="mb-6 p-3 rounded-md bg-[#4a8a6a]/10 border border-[#4a8a6a]/20 text-[12px] text-[#4a8a6a] font-semibold">
+                <div className="mb-4 sm:mb-6 p-3 rounded-md bg-[#4a8a6a]/10 border border-[#4a8a6a]/20 text-[12px] text-[#4a8a6a] font-semibold">
                   {success}
                 </div>
               )}
 
               {/* Headline */}
-              <div className="mb-8">
-                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+              <div className="mb-6 sm:mb-8">
+                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 sm:mb-3">
                   HEADLINE
                 </label>
                 <input
@@ -549,19 +690,19 @@ export default function AdminNewsPage() {
                     setForm((p) => ({ ...p, title: e.target.value }))
                   }
                   placeholder="e.g., Annual Founder's Day Commemoration 2024"
-                  className="w-full bg-white border border-[#e5e1d8] rounded-md px-4 py-3 text-[14px] outline-none text-[#1a1a1a] placeholder:text-gray-300 font-serif italic"
+                  className="w-full bg-white border border-[#e5e1d8] rounded-md px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-[14px] outline-none text-[#1a1a1a] placeholder:text-gray-300 font-serif italic"
                 />
               </div>
 
               {/* Rich Text Editor */}
-              <div className="mb-8">
-                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+              <div className="mb-6 sm:mb-8">
+                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 sm:mb-3">
                   ANNOUNCEMENT CONTENT
                 </label>
                 <div className="border border-[#e5e1d8] rounded-md bg-white overflow-hidden flex flex-col">
                   {/* Toolbar (visual only — formatting isn't persisted, body is saved as plain text) */}
-                  <div className="bg-[#fcfbfa] border-b border-[#e5e1d8] px-4 py-2 flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-gray-600">
+                  <div className="bg-[#fcfbfa] border-b border-[#e5e1d8] px-3 sm:px-4 py-2 flex items-center justify-between overflow-x-auto">
+                    <div className="flex items-center gap-3 sm:gap-4 text-gray-600 shrink-0">
                       <button type="button" className="hover:text-[#033327]">
                         {icons.bold}
                       </button>
@@ -581,7 +722,7 @@ export default function AdminNewsPage() {
                     </div>
                     <button
                       type="button"
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 shrink-0 ml-2"
                     >
                       {icons.history}
                     </button>
@@ -592,30 +733,32 @@ export default function AdminNewsPage() {
                     onChange={(e) =>
                       setForm((p) => ({ ...p, body: e.target.value }))
                     }
-                    className="w-full min-h-[220px] p-5 text-[13px] text-gray-700 leading-relaxed outline-none resize-y"
+                    className="w-full min-h-[180px] sm:min-h-[220px] p-4 sm:p-5 text-[13px] text-gray-700 leading-relaxed outline-none resize-y"
                     placeholder="Begin writing your announcement here..."
                   ></textarea>
                 </div>
               </div>
 
               {/* Visual Records (Attachment) */}
-              <div className="mb-10">
-                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+              <div className="mb-8 sm:mb-10">
+                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 sm:mb-3">
                   VISUAL RECORDS (ATTACHMENT)
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Upload Box — file upload wiring needs a storage backend (S3/Cloudinary); not yet connected */}
-                  <div className="border border-dashed border-[#d1cdbd] rounded-lg bg-[#fcfbfa] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-white transition-colors h-[180px]">
-                    <div className="text-gray-400 mb-3">{icons.plusImage}</div>
+                  <div className="border border-dashed border-[#d1cdbd] rounded-lg bg-[#fcfbfa] p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-white transition-colors h-[160px] sm:h-[180px]">
+                    <div className="text-gray-400 mb-2 sm:mb-3">
+                      {icons.plusImage}
+                    </div>
                     <p className="text-[12px] font-bold text-gray-700 mb-1">
                       Upload Featured Image
                     </p>
-                    <p className="text-[8px] text-gray-400 uppercase tracking-wider">
+                    <p className="text-[8px] text-gray-400 uppercase tracking-wider px-2">
                       Recommended: 1200x800px, under 2MB
                     </p>
                   </div>
                   {/* Preview Box */}
-                  <div className="border border-[#e5e1d8] rounded-lg bg-[#f0ede8] overflow-hidden flex items-center justify-center relative h-[180px]">
+                  <div className="border border-[#e5e1d8] rounded-lg bg-[#f0ede8] overflow-hidden flex items-center justify-center relative h-[160px] sm:h-[180px]">
                     <div className="absolute inset-0 opacity-40">
                       <img
                         src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=600"
@@ -624,7 +767,7 @@ export default function AdminNewsPage() {
                       />
                     </div>
                     <div className="absolute inset-0 bg-[#f0ede8]/30 mix-blend-overlay"></div>
-                    <p className="relative text-[10px] font-bold text-white uppercase tracking-widest z-10 drop-shadow-md">
+                    <p className="relative text-[10px] font-bold text-white uppercase tracking-widest z-10 drop-shadow-md text-center px-2">
                       Preview will appear here
                     </p>
                   </div>
@@ -632,18 +775,18 @@ export default function AdminNewsPage() {
               </div>
 
               {/* Form Footer */}
-              <div className="pt-6 border-t border-[#e5e1d8] flex items-center justify-between">
+              <div className="pt-5 sm:pt-6 border-t border-[#e5e1d8] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-0">
                 <button
                   type="button"
-                  className="px-5 py-2.5 rounded border border-[#e5e1d8] bg-white text-[11px] font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                  className="px-4 sm:px-5 py-2.5 rounded border border-[#e5e1d8] bg-white text-[11px] font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-2 w-full sm:w-auto"
                 >
                   {icons.eye} Preview Record
                 </button>
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={handleDiscard}
-                    className="text-[10px] font-bold text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                    className="text-[10px] font-bold text-gray-500 uppercase tracking-wider hover:text-gray-700 py-2 sm:py-0 text-center"
                   >
                     DISCARD DRAFT
                   </button>
@@ -651,7 +794,7 @@ export default function AdminNewsPage() {
                     type="button"
                     onClick={handlePublish}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 rounded bg-[#033327] text-[11px] font-bold text-white hover:bg-[#0d4a3b] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="px-5 sm:px-6 py-2.5 rounded bg-[#033327] text-[11px] font-bold text-white hover:bg-[#0d4a3b] transition-colors disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto"
                   >
                     {isSubmitting ? "Publishing..." : "Commit to Archive"}
                   </button>
@@ -660,11 +803,11 @@ export default function AdminNewsPage() {
             </div>
 
             {/* Bottom Meta */}
-            <div className="mt-8 text-center flex items-center justify-center gap-4 text-[8px] font-bold text-gray-400 uppercase tracking-widest">
+            <div className="mt-6 sm:mt-8 text-center flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:gap-4 text-[7px] sm:text-[8px] font-bold text-gray-400 uppercase tracking-widest px-2">
               <span>DRAFT AUTO-SAVED: 10:15 PM</span>
-              <span className="w-1 h-1 rounded-full bg-[#b5985b]"></span>
+              <span className="w-1 h-1 rounded-full bg-[#b5985b] hidden sm:inline-block"></span>
               <span>ADMIN: ARTHUR J. STERLING</span>
-              <span className="w-1 h-1 rounded-full bg-[#b5985b]"></span>
+              <span className="w-1 h-1 rounded-full bg-[#b5985b] hidden sm:inline-block"></span>
               <span>ID: ARCH-7729-N</span>
             </div>
           </div>

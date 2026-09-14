@@ -27,7 +27,8 @@ export default function NewsPage() {
     api
       .get("/news")
       .then((res) => {
-        const payload = res.data?.data?.data ?? res.data?.data?.news ?? res.data?.data ?? [];
+        const payload =
+          res.data?.data?.data ?? res.data?.data?.news ?? res.data?.data ?? [];
         const items = Array.isArray(payload) ? payload : [payload];
         setNews(items.filter((item) => item && item.status === "published"));
       })
@@ -132,7 +133,7 @@ export default function NewsPage() {
       {/* â”€â”€ NEWS GRID â”€â”€ */}
       <div className="max-w-7xl mx-auto px-6 pb-24">
         {loading ? (
-          <div className="text-center py-24 text-gray-400">Loading newsâ€¦</div>
+          <div className="text-center py-24 text-gray-400">Loading news</div>
         ) : error ? (
           <div className="text-center py-24 text-red-500">{error}</div>
         ) : filteredNews.length === 0 ? (

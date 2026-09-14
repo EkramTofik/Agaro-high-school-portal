@@ -1,4 +1,5 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 
 const Icon = {
@@ -345,6 +346,37 @@ const Icon = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   ),
+  menu: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="4" y1="12" x2="20" y2="12" />
+      <line x1="4" y1="18" x2="20" y2="18" />
+    </svg>
+  ),
+  close: (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  ),
 };
 
 const navGroups = [
@@ -433,16 +465,42 @@ function initials(name = "") {
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  return (
-    <div className="flex h-screen overflow-hidden bg-[#FAF8F5] text-[#1a1a1a]">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-[#e5e1d8] bg-[#f4f1ec]">
-        <div className="border-b border-[#e5e1d8] px-5 py-6">
+  // Close the mobile drawer whenever the route changes
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
+    setSidebarOpen(false);
+  }
+  // Lock body scroll while the mobile drawer is open, close on Escape
+  useEffect(() => {
+    if (sidebarOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") setSidebarOpen(false);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = previousOverflow;
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [sidebarOpen]);
+
+  const sidebarContent = (
+    <>
+      <div className="flex items-center justify-between border-b border-[#e5e1d8] px-5 py-6">
+        <div>
           <p className="font-serif text-[17px] font-bold leading-tight text-[#033327]">
             Agaro High Admin
           </p>
@@ -450,81 +508,123 @@ export default function AdminLayout() {
             Living Archive Portal
           </p>
         </div>
+        {/* Close button — mobile/tablet drawer only */}
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(false)}
+          className="rounded-md p-1.5 text-gray-400 hover:bg-[#e5e1d8]/60 hover:text-[#033327] lg:hidden"
+          aria-label="Close menu"
+        >
+          {Icon.close}
+        </button>
+      </div>
 
-        <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
-          {navGroups.map((group) => (
-            <div key={group.title}>
-              <p className="mb-1.5 px-3 text-[9px] font-bold uppercase tracking-[0.18em] text-gray-400">
-                {group.title}
-              </p>
-              <div className="space-y-0.5">
-                {group.items.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    className={({ isActive }) =>
-                      `flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-[12px] font-semibold transition-colors ${
-                        isActive
-                          ? "border-l-[3px] border-[#033327] bg-[#e5e1d8] text-[#033327]"
-                          : "text-gray-600 hover:bg-[#e5e1d8]/60 hover:text-[#033327]"
-                      }`
-                    }
-                  >
-                    <span className="shrink-0">{item.icon}</span>
-                    {item.label}
-                  </NavLink>
-                ))}
-              </div>
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+        {navGroups.map((group) => (
+          <div key={group.title}>
+            <p className="mb-1.5 px-3 text-[9px] font-bold uppercase tracking-[0.18em] text-gray-400">
+              {group.title}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    `flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-[12px] font-semibold transition-colors ${
+                      isActive
+                        ? "border-l-[3px] border-[#033327] bg-[#e5e1d8] text-[#033327]"
+                        : "text-gray-600 hover:bg-[#e5e1d8]/60 hover:text-[#033327]"
+                    }`
+                  }
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                  {item.label}
+                </NavLink>
+              ))}
             </div>
-          ))}
-        </nav>
+          </div>
+        ))}
+      </nav>
 
-        <div className="space-y-3 border-t border-[#e5e1d8] px-4 py-4">
-          <button
-            type="button"
-            onClick={() => navigate("/admin/profile")}
-            className="flex w-full items-center gap-3 rounded-lg bg-white px-3 py-2.5 text-left transition hover:bg-[#e8f0ec]"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#033327] text-[10px] font-bold text-[#FFDEA4]">
-              {initials(user?.fullName)}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-[11px] font-bold text-[#033327]">
-                {user?.fullName || "Administrator"}
-              </p>
-              <p className="truncate text-[9px] text-gray-500">{user?.email}</p>
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-[#e5e1d8] bg-white px-3 py-2 text-[11px] font-bold text-gray-600 hover:text-[#033327]"
-          >
-            {Icon.logout} Log out
-          </button>
-        </div>
+      <div className="space-y-3 border-t border-[#e5e1d8] px-4 py-4">
+        <button
+          type="button"
+          onClick={() => navigate("/admin/profile")}
+          className="flex w-full items-center gap-3 rounded-lg bg-white px-3 py-2.5 text-left transition hover:bg-[#e8f0ec]"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#033327] text-[10px] font-bold text-[#FFDEA4]">
+            {initials(user?.fullName)}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-[11px] font-bold text-[#033327]">
+              {user?.fullName || "Administrator"}
+            </p>
+            <p className="truncate text-[9px] text-gray-500">{user?.email}</p>
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-[#e5e1d8] bg-white px-3 py-2 text-[11px] font-bold text-gray-600 hover:text-[#033327]"
+        >
+          {Icon.logout} Log out
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-[#FAF8F5] text-[#1a1a1a]">
+      {/* Backdrop — mobile/tablet only, shown while drawer is open */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar: static column on desktop (lg+), slide-in drawer below lg */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] shrink-0 flex-col border-r border-[#e5e1d8] bg-[#f4f1ec] transition-transform duration-300 ease-in-out
+          lg:static lg:z-auto lg:w-60 lg:max-w-none lg:translate-x-0
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        {sidebarContent}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[#e5e1d8] bg-[#FAF8F5] px-6 py-3">
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">
-              Administrative Console
-            </p>
-            <p className="font-serif text-sm font-bold text-[#033327]">
-              Welcome back, {user?.fullName?.split(" ")[0] || "Admin"}
-            </p>
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#e5e1d8] bg-[#FAF8F5] px-4 py-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="rounded-md p-1.5 text-[#033327] hover:bg-[#e5e1d8]/60 lg:hidden"
+              aria-label="Open menu"
+              aria-expanded={sidebarOpen}
+            >
+              {Icon.menu}
+            </button>
+            <div className="min-w-0">
+              <p className="hidden text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 sm:block">
+                Administrative Console
+              </p>
+              <p className="truncate font-serif text-sm font-bold text-[#033327]">
+                Welcome back, {user?.fullName?.split(" ")[0] || "Admin"}
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => navigate("/admin/profile")}
-            className="flex items-center gap-3 rounded-full border border-[#e5e1d8] bg-white py-1.5 pl-1.5 pr-4 hover:border-[#033327]/30"
+            className="flex shrink-0 items-center gap-2 sm:gap-3 rounded-full border border-[#e5e1d8] bg-white py-1.5 pl-1.5 pr-2 sm:pr-4 hover:border-[#033327]/30"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#033327] text-[10px] font-bold text-[#FFDEA4]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#033327] text-[10px] font-bold text-[#FFDEA4]">
               {initials(user?.fullName)}
             </div>
-            <div className="text-left">
+            <div className="hidden text-left sm:block">
               <p className="text-[11px] font-bold text-[#1a1a1a]">
                 {user?.fullName || "Admin"}
               </p>
@@ -532,7 +632,9 @@ export default function AdminLayout() {
                 Edit profile
               </p>
             </div>
-            <span className="text-gray-400">{Icon.settings}</span>
+            <span className="hidden text-gray-400 sm:inline">
+              {Icon.settings}
+            </span>
           </button>
         </header>
 

@@ -27,6 +27,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile menu on route change
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsOpen(false);
@@ -35,27 +36,51 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, [location]);
 
+  // Lock body scroll while the mobile menu is open, and allow Escape to close it
+  useEffect(() => {
+    if (isOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") setIsOpen(false);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = previousOverflow;
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isOpen]);
+
   return (
     <nav
       id="main-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#FAF8F5]/95 backdrop-blur-md shadow-sm py-3 border-b border-[#e5e1d8]"
-          : "bg-[#FAF8F5] py-4"
+          ? "bg-[#FAF8F5]/95 backdrop-blur-md shadow-sm py-2.5 sm:py-3 border-b border-[#e5e1d8]"
+          : "bg-[#FAF8F5] py-3 sm:py-4"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-3">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group" id="logo-link">
-            <div className="w-[3px] h-6 bg-[#FFDEA4]"></div>
-            <span className="text-[#033327] text-lg font-bold font-serif leading-tight tracking-tight">
+          <Link
+            to="/"
+            className="flex items-center gap-2 sm:gap-3 group min-w-0 shrink-0"
+            id="logo-link"
+          >
+            <div className="w-[3px] h-5 sm:h-6 bg-[#FFDEA4] shrink-0"></div>
+            <span className="text-[#033327] text-sm sm:text-base md:text-lg font-bold font-serif leading-tight tracking-tight truncate">
               Agaro High School
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-8">
+          {/* Desktop Nav — switches on at xl so it never gets squeezed on
+              tablets / small laptops; those sizes fall back to the mobile
+              menu below instead of wrapping or overflowing. */}
+          <div className="hidden xl:flex items-center gap-5 2xl:gap-8 overflow-x-auto">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
@@ -63,7 +88,7 @@ export default function Navbar() {
                   key={link.name}
                   to={link.path}
                   id={`nav-${link.name.toLowerCase().replace(/\s/g, "-")}`}
-                  className={`text-[10px] uppercase font-bold tracking-widest transition-all duration-200 relative py-1 ${
+                  className={`text-[10px] uppercase font-bold tracking-widest transition-all duration-200 relative py-1 whitespace-nowrap ${
                     isActive
                       ? "text-[#033327]"
                       : "text-gray-400 hover:text-[#033327]"
@@ -76,16 +101,22 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <Link
+              to="/contact"
+              className="ml-1 px-4 py-2 bg-[#033327] hover:bg-[#0d4a3b] text-white font-bold text-[10px] uppercase tracking-widest rounded-lg transition-all duration-200 whitespace-nowrap"
+            >
+              Enroll
+            </Link>
           </div>
 
-          {/* Right Actions */}
-
-          {/* Mobile menu button */}
+          {/* Mobile / tablet menu button (visible below xl) */}
           <button
             id="mobile-menu-btn"
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 rounded-lg text-[#033327] hover:bg-black/5 transition-colors"
+            className="xl:hidden p-2 -mr-2 rounded-lg text-[#033327] hover:bg-black/5 transition-colors shrink-0"
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-nav-panel"
           >
             <svg
               className="w-6 h-6"
@@ -112,13 +143,16 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Nav */}
+        {/* Mobile / tablet Nav panel (below xl) */}
         <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ${
-            isOpen ? "max-h-80 opacity-100 pt-4 pb-2" : "max-h-0 opacity-0"
+          id="mobile-nav-panel"
+          className={`xl:hidden overflow-hidden transition-all duration-300 ${
+            isOpen
+              ? "max-h-[calc(100vh-5rem)] opacity-100 pt-4 pb-2"
+              : "max-h-0 opacity-0"
           }`}
         >
-          <div className="flex flex-col gap-2 pt-4 border-t border-[#e5e1d8]">
+          <div className="flex flex-col gap-1 pt-4 border-t border-[#e5e1d8] max-h-[calc(100vh-9rem)] overflow-y-auto">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (

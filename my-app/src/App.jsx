@@ -7,7 +7,8 @@ import {
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import HomePage, { homeLoader } from "./pages/HomePage";
+import { homeLoader } from "./api/homeLoader";
+import HomePage from "./pages/HomePage";
 import HistoryPage from "./pages/HistoryPage";
 import StaffPage from "./pages/StaffPage";
 import GalleryPage from "./pages/GalleryPage";

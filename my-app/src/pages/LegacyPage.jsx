@@ -1,7 +1,6 @@
 // Legacy page (full lower sections)
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, FileText, Newspaper, PhoneCall, Trophy, Calendar, Landmark } from 'lucide-react';
+import { ArrowRight,Trophy, Calendar, Landmark } from 'lucide-react';
 import api from '../api/axios';
 
 export default function LegacyPage() {

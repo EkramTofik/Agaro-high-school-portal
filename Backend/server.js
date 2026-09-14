@@ -4,9 +4,13 @@ process.on("uncaughtException", (err) => {
 });
 
 const dotenv = require("dotenv");
+const dns = require("dns");
+
 const mongoose = require("mongoose");
 
 dotenv.config({ path: "./config.env" });
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 const app = require("./app");
 
 if (!process.env.DATABASE || !process.env.DATABASE_PASSWORD) {
@@ -18,12 +22,15 @@ const DB = process.env.DATABASE.replace(
   process.env.DATABASE_PASSWORD,
 );
 
-mongoose.connect(DB).then(() => {
-  console.log("Database connection successful  🎉");
-});
-// .catch((err) => {
-//   console.log('Database connection failed  💥:');
-// });
+mongoose
+  .connect(DB)
+  .then(() => {
+    console.log("Database connection successful  🎉");
+  })
+  .catch((err) => {
+    console.error("Database connection failed 💥");
+    console.error(err);
+  });
 const port = process.env.PORT;
 if (process.env.NODE_ENV === "development") {
   app.listen(port, () => {
